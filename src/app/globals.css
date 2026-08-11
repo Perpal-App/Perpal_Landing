@@ -1,0 +1,388 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Perpal design system
+   Tokens mirror the mobile app (src/theme/tokens.ts) so the marketing surface
+   and the product read as one brand.
+   ========================================================================== */
+
+@theme {
+  /* -- Surfaces --------------------------------------------------------
+     A daylight surface. `paper` is the page, `ink` is what is written on
+     it — the names finally sit the right way up. */
+  --color-paper: #ffffff;
+  --color-paper-dim: #f3f8fd;
+  --color-surface: #eef5fc;
+  --color-surface-raised: #e4eff9;
+  --color-line: #dde7f1;
+  --color-line-strong: #c2d2e1;
+
+  /* -- Type ------------------------------------------------------------
+     Cool near-black, so type belongs to the sky rather than sitting on
+     top of it. 15.9:1 on paper. */
+  --color-ink: #0f1720;
+  --color-ink-deep: #070c12;
+  --color-muted: #4c5a68; /* 8.0:1 on paper */
+  /* `faint` measures 4.06:1 on paper — under the 4.5:1 floor, and lower again
+     on any tinted surface. It is a hairline and placeholder tone only. Anything
+     meant to be read, including an 11px label, takes `muted`. */
+  --color-faint: #6f8090;
+
+  /* -- Accent ----------------------------------------------------------
+     Sampled from the sky in public/assets/cloud_bg.jpg, so the painted
+     image and the CSS field are the same weather. */
+  --color-sky: #a9d6f6;
+  --color-sky-deep: #5fa8dd;
+  --color-haze: #e4f1fb;
+
+  /* -- Grape -----------------------------------------------------------
+     The action colour, reserved for buttons so nothing else on the page
+     competes with them. A tint of it is `lilac` in the field below, which
+     is what keeps the loud version in the same family as the weather.
+
+     `grape-ink` is the label: white carrying a purple cast rather than a
+     flat white. The pair measures 4.63:1, and that number is what sets how
+     light the fill can be — this is the lightest purple that still carries
+     this label past the 4.5:1 floor. A pale periwinkle fill would read at
+     1.3:1 and can only take a near-black label. */
+  --color-grape: #7654c9;
+  --color-grape-deep: #6844b8;
+  --color-grape-ink: #f1ecff;
+
+  /* -- Lilac -----------------------------------------------------------
+     The purple in the field. Warm enough to sit next to `sky` without the
+     two reading as a stock blue-to-purple technology gradient — it stays a
+     tone inside the weather, never the whole sky. */
+  --color-lilac: #c4b8f2;
+  --color-lilac-deep: #8b79d4;
+
+  /* -- Semantic --------------------------------------------------------
+     Market state. Darkened from their dark-theme values to clear 4.5:1
+     on paper. */
+  --color-long: #128a4d;
+  --color-short: #d2264c;
+
+  /* -- Families --------------------------------------------------------
+     Three faces, and only three. The variables they point at come from
+     `src/lib/fonts.ts`, and each already carries its own metric-matched
+     fallback, so no system stack is listed here.
+
+       Dürer   — the wordmark, display type, handwritten asides
+       Poppins — UI meta, labels, numeric readouts
+       Lexend  — body copy, subtext, everything that is read
+
+     `mono` and `serif` are unset rather than left at their defaults: an
+     unset token generates no utility, so `font-mono` cannot silently
+     reintroduce the operating system's monospace face. The two
+     `--default-*` variables are what Preflight resolves `html` and
+     `code`/`pre` against, and they would otherwise reach for system
+     fonts as well. */
+  --font-sans: var(--font-lexend);
+  --font-display: var(--font-durer);
+  --font-hand: var(--font-durer);
+  --font-logo: var(--font-durer);
+  --font-ui: var(--font-poppins);
+  --font-mono: initial;
+  --font-serif: initial;
+
+  --default-font-family: var(--font-lexend);
+  --default-mono-font-family: var(--font-poppins);
+
+  /* -- Fluid display scale --------------------------------------------
+     Clamps keep every headline on its intended number of lines from
+     360px to 2560px without a single media query. */
+  --text-d0: clamp(3.75rem, 13.5vw, 15rem);
+  --text-d0--line-height: 0.82;
+  --text-d0--letter-spacing: -0.05em;
+
+  /* d1 leads at 1 rather than the 0.86 the other display steps use, because
+     it is the only step that runs to a second line here. Dürer sets a tall,
+     light skeleton with deep descenders, so at 0.86 the `p` of "perpetuals"
+     reaches into the caps of the line below and the two rows read as one
+     block. A full em opens a visible channel between them without letting
+     the headline come apart. */
+  --text-d1: clamp(2.75rem, 8.4vw, 8.75rem);
+  --text-d1--line-height: 1;
+  --text-d1--letter-spacing: -0.042em;
+
+  --text-d2: clamp(2.25rem, 5.4vw, 5rem);
+  --text-d2--line-height: 0.92;
+  --text-d2--letter-spacing: -0.035em;
+
+  --text-d3: clamp(1.75rem, 3.2vw, 2.75rem);
+  --text-d3--line-height: 1.04;
+  --text-d3--letter-spacing: -0.026em;
+
+  --text-lead: clamp(1.0625rem, 1.5vw, 1.375rem);
+  --text-lead--line-height: 1.5;
+  --text-lead--letter-spacing: -0.012em;
+
+  --text-tag: 0.6875rem;
+  --text-tag--line-height: 1;
+  --text-tag--letter-spacing: 0.16em;
+
+  /* -- Easing ----------------------------------------------------------
+     Every curve is fast-out / settle-in. Nothing eases in from rest,
+     which is what makes an interface feel immediate rather than delayed. */
+  --ease-swift: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-snap: cubic-bezier(0.32, 1.06, 0.36, 1);
+
+  /* -- Elevation -------------------------------------------------------
+     One surface lifts off the page: the nav capsule, once there is
+     something scrolling under it. Buttons are flat — they sit in the page
+     rather than hovering over it, so their fill does all the work. */
+  --shadow-pill: 0 18px 50px -22px rgba(15, 23, 32, 0.28);
+
+  /* The other one is the hero's glass action, and it is a bulge rather than a
+     drop shadow. Three layers, read from the top down: a hairline highlight on
+     the upper edge where the light lands, a soft shade gathering along the
+     lower inside edge, and an outer drop that lifts the whole thing off the
+     field. Curvature is what makes glass read as an object you can press —
+     without it, `backdrop-filter` alone just looks like a hole in the page.
+     The shade and the drop are cast in `grape-deep` rather than ink, so the
+     button's own shadow belongs to the action colour instead of greying the
+     field under it. */
+  --shadow-bulge:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    inset 0 -10px 20px -12px rgba(104, 68, 184, 0.3),
+    0 14px 30px -16px rgba(104, 68, 184, 0.45);
+
+  /* -- Layout ---------------------------------------------------------- */
+  --spacing-gutter: clamp(1.25rem, 4.5vw, 5rem);
+  --shell-max: 1680px;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    /* Lenis owns scrolling. A native smooth-scroll here would fight it. */
+    scroll-behavior: auto;
+    /* The frame colour the backdrop's inset leaves showing. It lives on <html>,
+       not <body>, for the reason described on `body` below. */
+    background-color: var(--color-paper);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    /* Stays transparent, and the page colour lives on <html>. The gradient
+       field is scoped to the hero now, so this no longer risks covering it —
+       but <html> is still the only element whose background paints before the
+       first frame of layout, which is what keeps the initial paint from
+       flashing the browser's own canvas. */
+    background-color: transparent;
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip;
+  }
+
+  /* Lenis sets these on <html> while smooth scroll is active. */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  html.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  html.lenis-stopped {
+    overflow: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 600;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-sky) 70%, transparent);
+    color: var(--color-ink);
+  }
+
+  /* Ink, not sky: the focus ring has to clear 3:1 against paper, and the
+     pale sky does not. */
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  button,
+  a {
+    color: inherit;
+  }
+
+  /* Native pointer affordance. Browsers only hand a pointer to links, so
+     buttons and anything acting as one are brought in line here. Anchors are
+     matched on [href] so a placeholder <a> stays inert. */
+  a[href],
+  button,
+  summary,
+  label[for],
+  [role="button"],
+  [role="tab"] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  input:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
+  /* Firefox / fallback scrollbar treatment */
+  html {
+    scrollbar-color: var(--color-line-strong) transparent;
+    scrollbar-width: thin;
+  }
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-line-strong);
+  }
+}
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+
+/* Page shell: consistent max width + fluid gutters. */
+@utility shell {
+  width: 100%;
+  max-width: var(--shell-max);
+  margin-inline: auto;
+  padding-inline: var(--spacing-gutter);
+}
+
+/* Section title: the same small-caps construction as `label`, one step up the
+   scale and at Poppins' real 600.
+   The difference in weight and size is the difference in job — `label` names a
+   field, this names a section, and a section that opens with a heading this
+   quiet is choosing to let its prose lead. Tracking eases off slightly because
+   letterspacing that suits 11px starts to read as gaps at 14px. */
+@utility section-title {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* Small caps technical label. Used for eyebrows, table heads, meta. */
+@utility label {
+  font-family: var(--font-ui);
+  font-size: var(--text-tag);
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Clip container for a masked line reveal. Each line animates inside it.
+   The padding is generous because the display face runs a tall skeleton over
+   very tight leading, and its descenders would otherwise be cut by the clip
+   edge. The matching negative margin keeps the layout unchanged. */
+@utility line-mask {
+  display: block;
+  overflow: hidden;
+  padding-block-end: 0.14em;
+  margin-block-end: -0.14em;
+}
+
+/* ==========================================================================
+   Pre-animation states
+
+   Declaring the start state in CSS rather than in a React effect is what
+   removes the flash of un-animated content: there is no point at which the
+   browser has painted the element and the motion layer has not yet claimed it.
+
+   The gate is the reduced-motion media query itself, so no class, no
+   JavaScript and no blocking inline script is involved:
+
+     reduced motion   -> query does not match -> content renders normally
+     motion allowed   -> hidden from the very first paint
+     JavaScript off   -> the <noscript> rule in the document restores it
+
+   ========================================================================== */
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal] {
+    opacity: 0;
+  }
+
+  /* Lines inside a masked heading start below their own clip edge. */
+  .line-mask > [data-line] {
+    transform: translateY(115%);
+  }
+}
+
+/* ==========================================================================
+   Keyframes
+   Transform / opacity only, so each one stays on the compositor.
+   ========================================================================== */
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.82);
+  }
+}
+
+/* ==========================================================================
+   Reduced motion
+   Animation is decoration here, never the only way content appears. The
+   motion layer also reads this via matchMedia and skips its timelines.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Anything the motion layer would have revealed must be visible. */
+  [data-reveal],
+  [data-line] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
