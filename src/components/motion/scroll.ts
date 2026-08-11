@@ -47,7 +47,10 @@ export function scrollToTarget(target: string | HTMLElement, offset = 0) {
   if (lenis) {
     lenis.scrollTo(target, {
       offset,
-      duration: 1.15,
+      /* Fast enough to feel like a jump, long enough to keep the reader
+         oriented. The quart-out spends most of the time near the destination,
+         so the distance travelled barely changes the perceived wait. */
+      duration: 0.85,
       easing: (t) => 1 - Math.pow(1 - t, 4),
     });
     return;

@@ -117,6 +117,16 @@
   --text-lead--line-height: 1.5;
   --text-lead--letter-spacing: -0.012em;
 
+  /* One step above `lead`, for a section that speaks to the reader in a few
+     short lines rather than explaining something at length. It exists because a
+     centred block of four or five lines needs to be read as a statement, and at
+     `lead` it reads as a caption. Leading is tighter than `lead`'s 1.5 for the
+     same reason: at this size the lines are short, so a tall line box pulls them
+     apart instead of holding them together. */
+  --text-lead-lg: clamp(1.375rem, 2.1vw, 1.875rem);
+  --text-lead-lg--line-height: 1.34;
+  --text-lead-lg--letter-spacing: -0.016em;
+
   --text-tag: 0.6875rem;
   --text-tag--line-height: 1;
   --text-tag--letter-spacing: 0.16em;
@@ -291,10 +301,24 @@
    letterspacing that suits 11px starts to read as gaps at 14px. */
 @utility section-title {
   font-family: var(--font-ui);
-  font-size: var(--text-sm);
+  font-size: var(--text-xl);
   line-height: 1;
-  letter-spacing: 0.14em;
+  /* Tracking eases off as the step goes up. 0.14em is right at label sizes and
+     starts to read as gaps between letters at 20px. */
+  letter-spacing: 0.09em;
   text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* Panel heading. Sentence case, not the uppercase of `section-title`, because it
+   is a statement rather than a signpost: a panel says something, a section is
+   named. Poppins at 600 keeps it in the same voice as the section titles above
+   it, and the tracking closes up because a geometric sans at 24px sets loose. */
+@utility panel-title {
+  font-family: var(--font-ui);
+  font-size: var(--text-2xl);
+  line-height: 1.22;
+  letter-spacing: -0.02em;
   font-weight: 600;
 }
 

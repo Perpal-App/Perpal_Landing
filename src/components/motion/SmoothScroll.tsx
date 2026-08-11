@@ -35,9 +35,20 @@ export function SmoothScroll() {
     const lenis = new Lenis({
       // lerp rather than duration: the position always chases the real input,
       // so a flick responds on the next frame instead of playing out a fixed
-      // animation. 0.11 is the point where it reads smooth but still immediate.
-      lerp: 0.11,
-      wheelMultiplier: 1,
+      // animation.
+      //
+      // 0.15 settles in about a fifth of a second — the page keeps the glide but
+      // stops feeling like it is catching up with the wheel. Below roughly 0.1 it
+      // starts to read as latency rather than smoothing; above 0.2 the smoothing
+      // stops registering at all and there is no reason to run Lenis.
+      lerp: 0.15,
+      // Just under native. A wheel notch is the unit of scroll-linked animation
+      // on this page: every effect tied to scroll position advances by whatever
+      // distance one notch covers, so a multiplier above 1 does not only make
+      // the page quick, it makes every reveal quicker with it. Holding this
+      // slightly below native gives the character band and the mesh room to
+      // read, and the smoothing is what keeps it from feeling heavy.
+      wheelMultiplier: 0.85,
 
       smoothWheel: true,
       // Touch is left native. Synthesising momentum on a touchscreen fights

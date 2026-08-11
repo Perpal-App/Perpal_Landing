@@ -75,15 +75,69 @@ export const about = {
   /* A question, and the section answers it. Phrased as one because the reader's
      own question at this point in the page is exactly this. */
   title: "Why Perpal?",
-  /* Two paragraphs, deliberately the same length: the gap, then the answer.
-     Both stay short because a centred measure punishes long copy — the reader
-     has to find the start of every line. */
+  /**
+   * Two short paragraphs: the gap, then the answer.
+   *
+   * Whole strings, not lines. The reveal animates characters, so it needs no
+   * break points from the copy, and `text-wrap: balance` gives an evenly ragged
+   * centred block at any width — which hand-written breaks cannot do, since they
+   * are correct at exactly one measure.
+   *
+   * The second paragraph is deliberately plain. "Routes funding", "states every
+   * order" and "your keys" are all accurate and all read as jargon to someone
+   * who has never held a wallet — which is precisely who this section is for.
+   */
   body: [
     "Perpetuals reward people who already understand them. Everyone else learns by losing money on venues built for traders who arrived fluent.",
-    "Perpal puts the lesson beside the market it explains, keeps your keys on the phone, and decodes every order into plain fields before you sign.",
+    "Perpal puts a short lesson next to the market it explains, and adds money privately through Umbra. Every trade is shown in plain words before you approve it, from a wallet only you control.",
   ],
-  /* The closing line, and the section's point. Perpal is narrow — one chain,
-     one venue, three markets, one platform — and the narrowness is the reason
-     to trust it, so the scope is stated flatly instead of written around. */
-  scope: "Narrow on purpose: Solana mainnet, Pacifica, and BTC, ETH, SOL on Android.",
+  /* The closing line names the three markets and where they trade, and nothing
+     else. One sentence across two lines, starting with the verb: the colon made
+     it read like a spec sheet, and what the markets are matters more to a reader
+     than the infrastructure they sit on, so they come first.
+     You trade on Perpal — that is the product the reader is being asked to want
+     — and Pacifica is the venue underneath it. Naming them in that order is both
+     the honest relationship and the useful one. */
+  scope: {
+    what: "Trade BTC, ETH, and SOL perpetuals",
+    where: "on Perpal, powered by Pacifica.",
+  },
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/* Product                                                                     */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Two panels: what the app is, and what it teaches.
+ *
+ * The claim rules bite hardest here, because this is the section that describes
+ * the product rather than the promise. Everything under `app` has to be visible
+ * in the screenshot beside it, and everything under `lessons` is a subject, not
+ * an outcome — no claim about what a reader will be able to do afterwards.
+ */
+export const product = {
+  app: {
+    title: "Your money and the market, on one screen.",
+    body: "Balances, open trades, where sentiment sits, the day's movers and the news behind them. The screen you land on is the screen you trade from.",
+    /* Real alt text: the screenshot carries information, so it is described
+       rather than hidden. */
+    alt: "The Perpal home screen, showing total balance, open trade count, a fear and greed gauge, the day's biggest movers with live prices, and market news.",
+  },
+  lessons: {
+    title: "Learn the words the market uses.",
+    body: "Nobody arrives knowing what funding is, or why a position can close itself. Each lesson takes one term, in plain words, beside the market where it turns up.",
+    /* The syllabus, not decoration. These are the terms the lessons are about,
+       and naming them is the argument: they are the reason a trading app has
+       lessons in it at all. */
+    topics: [
+      "Funding rates",
+      "Liquidation",
+      "Order types",
+      "Position sizing",
+      "Mark price",
+      "Margin",
+      "Stop orders",
+    ],
+  },
 } as const;
