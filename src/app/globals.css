@@ -56,6 +56,26 @@
   --color-lilac: #c4b8f2;
   --color-lilac-deep: #8b79d4;
 
+  /* -- Ember -----------------------------------------------------------
+     The one warm hue on the page, added on the product owner's instruction
+     for the closing panel, matched to the reference they supplied.
+
+     It is worth being clear about what this costs. Everything else here is
+     blue, violet or near-black, sampled from the app's own surfaces; this is
+     sampled from someone else's page. And warm orange over a pale ground is
+     half of a cluster this project set out to refuse — the other half being a
+     cream background and a serif display, neither of which exists here, which
+     is the only reason it stays on the right side of that line.
+
+     So: one hue, one panel. The gradient fades ember into itself at 40% rather
+     than into a second warm tone, so the ramp stays a single colour thinning
+     out. If it spreads to a second section it stops being an accent and starts
+     being a palette, and the argument above no longer holds.
+
+     ink measures 6.6:1 on it, so copy can go here later without a second
+     thought. */
+  --color-ember: #e8823c;
+
   /* -- Semantic --------------------------------------------------------
      Market state. Darkened from their dark-theme values to clear 4.5:1
      on paper. */
@@ -312,13 +332,19 @@
 
 /* Panel heading. Sentence case, not the uppercase of `section-title`, because it
    is a statement rather than a signpost: a panel says something, a section is
-   named. Poppins at 600 keeps it in the same voice as the section titles above
-   it, and the tracking closes up because a geometric sans at 24px sets loose. */
+   named.
+
+   It is a display-scale size, fluid from 30px to 44px, because a panel that opens
+   with a heading this size gives its body copy something to sit under — the jump
+   from title to prose is the hierarchy, and at 24px there was barely a jump.
+   Poppins at 600 keeps it in the same voice as the section titles above it; the
+   tracking closes up hard because a geometric sans sets loose at display sizes,
+   and the line box tightens to 1.1 so a two-line heading reads as one block. */
 @utility panel-title {
   font-family: var(--font-ui);
-  font-size: var(--text-2xl);
-  line-height: 1.22;
-  letter-spacing: -0.02em;
+  font-size: clamp(1.875rem, 1.1rem + 2.4vw, 2.75rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
   font-weight: 600;
 }
 

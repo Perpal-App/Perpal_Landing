@@ -1,9 +1,10 @@
 import Image from "next/image";
 import { product } from "@/lib/content";
+import { PillCloud } from "@/components/ui/PillCloud";
 import { Parallax } from "@/components/motion/Parallax";
 
 /**
- * Product: the app, and the vocabulary it teaches.
+ * Product: the trading home, and the learning and privacy scope around it.
  *
  * Two panels of unequal width on the same white matte the sections above sit in,
  * so the page continues to read as canvases stacked on a mount rather than as
@@ -23,14 +24,16 @@ import { Parallax } from "@/components/motion/Parallax";
  * been the only dark surface on a daylight page. The phone is the darkest object
  * here; it does not need help.
  *
- * The fill is flat. A grain field rose out of the bottom-left corner here for a
- * while, and the panel is better without it: the crop is the idea, and anything
- * textured around the device competes with the only screenshot on the page.
+ * Behind the device, one disc in the deep step of the panel's own colour, cropped
+ * by the panel's lower edges. It gives the crop a second thing to happen against — the phone
+ * passes in front of a form rather than sitting on a flat field — and it stays a
+ * shade of the surface rather than a new colour. A grain field tried to do this
+ * job earlier and was removed: texture around the only screenshot on the page
+ * competes with it, where a single large form sits behind it.
  *
  * Everything else gets quieter for it. The chips on the right are flat, one fill,
- * no shadow and no icons: they are the lesson subjects, so their job is to be
- * read as a list of real terms, and a chip that performs starts to look like a
- * button that does nothing.
+ * no shadow and no icons: they name product scope, and a chip that performs
+ * starts to look like a button that does nothing.
  *
  * One motion idea, and it belongs to the crop: the device drifts against the
  * scroll inside the panel that cuts it. Nothing else here moves. That keeps it the
@@ -42,16 +45,60 @@ export function Product() {
   return (
     <section id="product" className="relative mt-2.5 px-2.5 sm:mt-3 sm:px-3">
       {/* The gap between panels matches the matte around them, so the white
-          between the two is the same white as the page edge. */}
-      <div className="grid gap-2.5 sm:gap-3 lg:grid-cols-12">
-        {/* Evidence. `overflow-hidden` is what crops the phone. */}
-        <div className="relative flex flex-col overflow-hidden rounded-2xl bg-lilac px-7 pt-9 sm:px-9 sm:pt-11 lg:col-span-5">
-          <h2 className="panel-title max-w-[22ch] text-ink">
+          between the two is the same white as the page edge.
+
+          38/62 rather than an even split or the old 5/7. The left panel is slimmer
+          for it, and nothing inside it reflows because the copy is capped at 34ch
+          — well below the panel's content width at every size from the `lg`
+          breakpoint up — so the wrap points are fixed by the caps, not by the
+          column. The right panel only widens, which its own caps absorb. */}
+      <div className="grid gap-2.5 sm:gap-3 lg:grid-cols-[38fr_62fr]">
+        {/* Evidence. `overflow-hidden` crops both the phone and the disc;
+            `isolate` gives the panel its own stacking context, so the disc's
+            negative z-index stays inside it — above the fill, below everything
+            in flow. */}
+        <div className="relative isolate flex flex-col overflow-hidden rounded-2xl bg-lilac px-8 pt-11 sm:px-11 sm:pt-14">
+          {/* A disc of `lilac-deep`, the deep step of the panel's own colour, so
+              the shape is a shade of the surface rather than a second colour
+              arriving. Around 2:1 against the fill: enough to read as a distinct
+              form, not enough to compete with the device in front of it.
+
+              Like the reference, it is a wide oval shifted through the left and
+              bottom edges, while its right curve closes inside the card. Its
+              height comes from its own aspect ratio rather than the card, so a
+              taller sibling panel cannot stretch it above the phone.
+
+              Pushed 30% of the panel's height further down than it sat, so its
+              crown lands around three quarters of the way down instead of level
+              with the middle of the device. The oval was reading as a halo behind
+              the phone at the same scale as the phone; low and wide, it reads as
+              ground under it. What is left visible is the top arc, which is the
+              part worth seeing.
+
+              Two things bound it in the other direction — the oval's right curve
+              has to close inside the card, and the crown has to stay below the copy,
+              because
+              `ink/80` measures 3.8:1 on `lilac-deep` against 6.4:1 on `lilac`. Text
+              over this shape would fail contrast, so it can grow down and left but
+              not up. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -bottom-[30%] -left-[28%] -z-10 aspect-[7/6] w-[116%] rounded-[50%] bg-lilac-deep"
+          />
+          <h2 className="panel-title text-ink sm:whitespace-nowrap">
             {product.app.title}
           </h2>
-          {/* `ink` at 80% rather than `muted`, which reads at 3.9:1 on this fill.
-              This holds 6.4:1. */}
-          <p className="mt-4 max-w-[38ch] text-base text-ink/80">
+          {/* `ink` at 80% rather than `muted`, which reads at 3.9:1 on this fill;
+              this holds 6.4:1.
+
+              42ch, up from 34ch. Since the panel narrowed, the old cap was holding
+              the copy around 70px short of the padding, so the paragraph read as a
+              column inside a column. This lands near the panel's own content width
+              at desktop, and still caps the measure once the panels stack and this
+              one gets much wider. `text-pretty` for the rag: the problem is the
+              orphan on the last line, not uneven line lengths, which is what
+              `text-balance` would go after. */}
+          <p className="mt-5 max-w-[42ch] text-pretty text-base leading-relaxed text-ink/80">
             {product.app.body}
           </p>
 
@@ -85,32 +132,41 @@ export function Product() {
         </div>
 
         {/* Argument. */}
-        <div className="flex flex-col rounded-2xl bg-sky px-7 py-9 sm:px-9 sm:py-11 lg:col-span-7">
-          <h2 className="panel-title max-w-[24ch] text-ink">
+        <div className="flex flex-col rounded-2xl bg-sky px-8 py-11 sm:px-11 sm:py-14">
+          {/* No `whitespace-nowrap` here, unlike the panel beside it. At this
+              display size a 41-character title cannot fit one line in this column
+              at any width the page supports, and forcing it would push the panel
+              wider than the viewport. It wraps, and `text-balance` splits it evenly
+              rather than leaving one word stranded. */}
+          <h2 className="panel-title text-balance text-ink">
             {product.lessons.title}
           </h2>
-          {/* `ink` at 80% rather than `muted`, which only reaches 3.6:1 on this
-              fill. This holds around 7:1. */}
-          <p className="mt-4 max-w-[52ch] text-base text-ink/80">
+          {/* Kept at the smaller body step used by the panel beside it. `ink` at 80% rather than
+              `muted`, which only reaches 3.6:1 on this fill; this holds around
+              7:1. */}
+          {/* 88ch, so the copy runs to the panel's padding instead of stopping
+              half way across a column this wide. The cap is not there to shape the
+              measure any more, it is there as a ceiling: past roughly 90 characters
+              a line stops being scannable, and without it an ultrawide window would
+              keep stretching this. */}
+          <p className="mt-5 max-w-[88ch] text-pretty text-base leading-relaxed text-ink/80">
             {product.lessons.body}
           </p>
 
           {/* Pushed to the foot of the panel, so the terms fill the height the
-              phone gives the row rather than leaving a hole under the copy.
+              phone gives the row rather than leaving a hole under the copy. Four
+              rows of two reach around 150px further up into that height than the
+              three ragged rows they replace, which is the point — the space above
+              them was reading as an unfinished panel rather than as air.
 
-              A plain wrap, deliberately. The reference staggers its rows by hand,
-              and an indent that encodes nothing is decoration; the terms are
-              different lengths, which gives the rag for free. */}
-          <ul className="mt-auto flex flex-wrap gap-2.5 pt-12">
-            {product.lessons.topics.map((topic) => (
-              <li
-                key={topic}
-                className="rounded-full bg-paper px-4 py-2 font-ui text-sm font-medium text-ink"
-              >
-                {topic}
-              </li>
-            ))}
-          </ul>
+              24px both ways once the terms pair up, from 20px below it. Across, it
+              is the only thing between two pills that now meet in the middle of the
+              row. Down, it has to survive the drift, which closes two rows sharing
+              a column by about 7px at one end of the scroll. */}
+          <PillCloud
+            items={product.lessons.topics}
+            className="mt-auto gap-5 pt-12 sm:gap-6"
+          />
         </div>
       </div>
     </section>

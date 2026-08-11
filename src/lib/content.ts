@@ -109,35 +109,38 @@ export const about = {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Two panels: what the app is, and what it teaches.
+ * Two panels: the trading home, and the product's learning and privacy scope.
  *
  * The claim rules bite hardest here, because this is the section that describes
  * the product rather than the promise. Everything under `app` has to be visible
- * in the screenshot beside it, and everything under `lessons` is a subject, not
- * an outcome — no claim about what a reader will be able to do afterwards.
+ * in the screenshot beside it. Planned order controls are named as planned so
+ * they cannot be mistaken for features already available in the prototype.
  */
 export const product = {
   app: {
-    title: "Your money and the market, on one screen.",
-    body: "Balances, open trades, where sentiment sits, the day's movers and the news behind them. The screen you land on is the screen you trade from.",
+    title: "Perps, all in one place.",
+    body: "Track balances, positions, and market signals, with a planned AI agent for analysis, backtests, and order prep you approve.",
     /* Real alt text: the screenshot carries information, so it is described
        rather than hidden. */
     alt: "The Perpal home screen, showing total balance, open trade count, a fear and greed gauge, the day's biggest movers with live prices, and market news.",
   },
   lessons: {
-    title: "Learn the words the market uses.",
-    body: "Nobody arrives knowing what funding is, or why a position can close itself. Each lesson takes one term, in plain words, beside the market where it turns up.",
-    /* The syllabus, not decoration. These are the terms the lessons are about,
-       and naming them is the argument: they are the reason a trading app has
-       lessons in it at all. */
+    title: "Learn. Backtest. Trade with more privacy.",
+    body: "Take Duolingo-style perp lessons beside live markets, fund privately through Umbra, and use planned AI analysis, backtests, and user-approved order prep.",
+    /* Shipping scope first, then the five the HLD marks incomplete: the three AI
+       capabilities and the two order types beyond market. The list no longer says
+       which is which, on instruction — the only remaining signal is the word
+       "planned" in the paragraph above it, so if that sentence is ever reworded,
+       this list starts claiming five features the prototype does not have. */
     topics: [
-      "Funding rates",
-      "Liquidation",
-      "Order types",
-      "Position sizing",
-      "Mark price",
-      "Margin",
-      "Stop orders",
+      "Duolingo-style lessons",
+      "Live perp markets",
+      "Private funding",
+      "Market news",
+      "Market orders",
+      "Portfolio tracking",
+      "AI market analysis",
+      "AI backtesting",
     ],
   },
 } as const;
