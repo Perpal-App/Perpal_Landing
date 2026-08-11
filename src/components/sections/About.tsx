@@ -1,5 +1,6 @@
 import { about } from "@/lib/content";
 import { Mark } from "@/components/ui/Logo";
+import { AboutMesh } from "@/components/sections/AboutMesh";
 
 /**
  * About.
@@ -19,9 +20,10 @@ import { Mark } from "@/components/ui/Logo";
  * to three lines at a real measure; a centred column any longer makes the reader
  * hunt for the start of each line.
  *
- * No motion. The section is four short blocks of text, and the argument is the
- * content — there is nothing here worth staging, and nothing that should be
- * invisible until a script arrives.
+ * The type never animates. The one motion idea belongs to `AboutMesh`, the
+ * three market objects in the margins, and it is scroll-linked rather than
+ * played: they open outward as the section arrives and close again on the way
+ * back. Nothing that has to be read waits on a script.
  *
  * The surface is one flat field of `haze`, the palest step of the sky the hero
  * paints, set in the same inset rounded window the backdrop uses so the page
@@ -31,8 +33,18 @@ import { Mark } from "@/components/ui/Logo";
 export function About() {
   return (
     <section id="about" className="relative px-2.5 sm:px-3">
-      <div className="rounded-2xl bg-haze py-16 sm:py-20">
-        <div className="shell">
+      {/* `overflow-hidden` is what lets an object in the mesh run off the panel
+          and be cut by its radius. */}
+      {/* Tall for the amount of copy it holds, on purpose: the height is what
+          gives the mesh four vertical bands a side to sit in, and what keeps the
+          objects from crowding the column they frame. */}
+      <div className="relative overflow-hidden rounded-2xl bg-haze py-28 sm:py-36 lg:py-44">
+        <AboutMesh />
+
+        {/* `relative` is load-bearing: the mesh is positioned, and a positioned
+            element paints over static in-flow content no matter what order the
+            DOM is in. This puts the reading column back on top. */}
+        <div className="relative shell">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="section-title text-ink">{about.title}</h2>
 
