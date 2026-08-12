@@ -357,6 +357,10 @@ export const quote = {
  */
 export const footer = {
   email: {
+    /* Rendered through the `label` utility, which uppercases it, so the casing here is
+       what assistive technology reads rather than what appears. Sentence case, as
+       everywhere else. */
+    title: "Contact us",
     label: "perpal.app@gmail.com",
     href: "mailto:perpal.app@gmail.com",
   },

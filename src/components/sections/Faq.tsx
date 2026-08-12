@@ -4,14 +4,15 @@ import { Lift } from "@/components/motion/Lift";
 /**
  * FAQ: the small print, given the same care as the promise.
  *
- * It sits between the mechanics and the ask, which is the only place it belongs. A
+ * It sits between the reassurance and the ask, which is the only place it belongs. A
  * reader who has come this far has decided whether they want this; what stops them
  * now is a question, and the answer has to arrive before the button does. Below the
  * ask it would be a footer nobody scrolls to.
  *
  * The field is `surface`, the palest cool step in the palette. Flat and quiet on
  * purpose: `About` has the haze and the mesh, `Product` the lilac and the device,
- * `HowItWorks` the tide, `Access` the ember. This is the section that answers
+ * `HowItWorks` the tide, `Privacy` the deep sky and the lock, `Access` the ember. This
+ * is the section that answers
  * questions, and the field's job is to stay out of the way of prose. It is also the
  * quietest beat before the warm panel, so the ember still arrives as a change of
  * temperature.

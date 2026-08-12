@@ -5,9 +5,10 @@ import { Lift } from "@/components/motion/Lift";
 /**
  * Privacy: the closing card, and the page's last image rather than its last argument.
  *
- * It sits between the questions and the ask, which is the last moment a reader can be
- * reassured before being asked for something. The FAQ answers what they thought to
- * ask; this answers the thing they were never going to type out.
+ * It sits between the mechanics and the questions, ahead of the FAQ rather than after
+ * it. That is the order the doubt arrives in: this answers the thing a reader was never
+ * going to type into a search box, so it belongs where it can pre-empt the questions
+ * instead of trailing them, and the FAQ is left holding whatever survives it.
  *
  * Two blocks of type, and the pairing is the page's: the heading takes `panel-title`,
  * which is Poppins at 600 and the same step every other panel heading uses, and the
@@ -33,9 +34,11 @@ import { Lift } from "@/components/motion/Lift";
  * The field is `sky-deep` graded into `sky` — the page's own blue, and the first
  * mid-tone cool field on it. Every other cool panel is a pale step of one hue, so
  * the way to make a seventh panel new was a change of register rather than another
- * shade: deeper, and read against the warm panel above it as the page's exhale. It
- * also bookends the hero, whose field is the same weather. One hue thinning, like
- * the ember ramp, not two hues meeting.
+ * shade: deeper. It lands between `tide` above and `surface` below, both pale, so the
+ * depth is the whole of what separates it from its neighbours — and it is the page's
+ * exhale before the ember arrives two panels later. It also bookends the hero, whose
+ * field is the same weather. One hue thinning, like the ember ramp, not two hues
+ * meeting.
  *
  * The copy is `dusk`, not `ink`, and the difference is the whole argument for that
  * token. A mid-tone field leaves no room at the light end — white measures 2.6:1 here
