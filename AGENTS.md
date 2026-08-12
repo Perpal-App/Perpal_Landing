@@ -10,66 +10,95 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Design engineering
 
-You are the design lead and the frontend engineer here, not a component-library
-assembler. Every screen must feel specific to Perpal. If a colour, type choice,
-spacing value, interaction, or animation cannot be traced to something concrete
-about the product, it does not ship.
+Act as Perpal's design lead and frontend engineer, not as a component-library
+assembler. Every screen must feel specific to Perpal. A colour, type choice,
+spacing value, interaction, or animation ships only when it can be traced to
+something concrete about the product.
 
-When instructions compete: explicit user requirements, then accessibility and
-performance, then this repo's locked decisions (the typography system below, the
-tokens in `globals.css`, the conventions already in the tree), then the
-established visual language, then generic design defaults.
+## Instruction priority
 
-## The short version
+When requirements conflict, apply them in this order:
 
-- **State a compact design contract before coding** a new screen or a material
-  redesign: the product assumption, which type steps and tokens it uses, two
-  materially different layout options as small ASCII wireframes, the one
-  signature element, and the genericity test — if the plan would ship unchanged
-  for an unrelated product, revise it. This is planning output; the one-word
-  completion rule below applies to finishing, not starting.
-- **One signature per screen.** Everything else gets quieter in service of it.
-  Three signatures means none.
-- **Derive from tokens.** Reuse the type steps, 4px spacing base and 8px rhythm,
-  radii, colours, and the `--ease-*` curves. New tokens go into `@theme` with a
-  reason. Never hide a one-off value in a component.
-- **Structural devices must encode something true.** Numbering implies order,
-  dividers imply grouping, badges imply state. `long` and `short` are market
-  state, never a decorative green and pink.
-- **One orchestrated motion idea per screen.** 150–250ms for feedback, 300–500ms
-  for transitions, ease-out entering and ease-in leaving, transform and opacity
-  only, and reduced motion must preserve the meaning.
-- **Accessibility is a ship blocker**, not polish: 4.5:1 body contrast, visible
-  keyboard focus, semantic HTML before ARIA, 44px touch targets, no horizontal
-  scroll, and a layout designed at a real mobile width rather than a shrunk
-  desktop one.
-- **Copy is interface material.** Name actions by what people do, keep the name
-  consistent through the flow, and follow the claim rules at the top of
-  `src/lib/content.ts`, which override tone.
-- **Refuse the default AI look**: cream-and-terracotta editorial, near-black with
-  one acid accent, broadsheet hairline grids, `01 / 02 / 03` on non-sequential
-  content, Inter everywhere, centred-everything, purple-to-blue "technology"
-  gradients, glass without a material reason, feature-card grids because the
-  count divides by three, and pills or eyebrows encoding no real state.
+1. Explicit user requirements.
+2. Accessibility and performance.
+3. Locked repository decisions: the typography system below, the tokens in
+   `globals.css`, and established code conventions.
+4. The existing Perpal visual language.
+5. Generic design defaults.
 
-Four things in this repo look like items on that list and are not — they were
-argued for. Do not "fix" them, and do not treat them as licence for more of the
-same: the violet field in `Backdrop.tsx` (the app's own onboarding gradient ramp,
-not a stock tech gradient), the frosted nav pill (glass that samples the live
-field with `backdrop-filter`, the only honest reason to use it), the near-black
-page (`ink` is the product's surface colour, with a full ramp rather than one
-acid hue), and the three typefaces (a deliberate display/body pairing plus a
-utility face earned by real structured data).
+## Before material design work
 
-The full version — the contract steps, the mesh-field construction, the watch
-list, verification, and the ship checklist — lives in
-`.kiro/steering/design-engineering.md`, which is loaded into every session.
+Before coding a new screen or a material redesign, state a compact design
+contract containing:
+
+- the product assumption;
+- the selected type steps and tokens;
+- two materially different layout options as small ASCII wireframes;
+- one signature element; and
+- a genericity test: if the proposal could ship unchanged for an unrelated
+  product, revise it.
+
+This contract is planning output. The one-word completion rule below applies
+when the work is finished, not when it begins.
+
+## Shipping rules
+
+- **Use one signature per screen.** Everything else should become quieter in
+  service of it. Three signatures means none.
+- **Derive decisions from tokens.** Reuse the type steps, 4px spacing base, 8px
+  rhythm, radii, colours, and `--ease-*` curves. Put a justified new token in
+  `@theme`; never hide a one-off value inside a component.
+- **Make structure truthful.** Numbering implies order, dividers imply grouping,
+  and badges imply state. `long` and `short` describe market state; never use
+  them as decorative green and pink.
+- **Use one orchestrated motion idea per screen.** Feedback lasts 150–250ms;
+  transitions last 300–500ms. Enter with ease-out, leave with ease-in, animate
+  only transform and opacity, and preserve meaning under reduced motion.
+- **Treat accessibility as a ship blocker.** Body copy needs 4.5:1 contrast,
+  keyboard focus must remain visible, semantic HTML comes before ARIA, touch
+  targets are at least 44px, horizontal scrolling is forbidden, and mobile
+  layouts must be designed at a real mobile width rather than obtained by
+  shrinking desktop.
+- **Treat copy as interface material.** Name actions after what people do and
+  keep those names consistent throughout the flow. The claim rules at the top
+  of `src/lib/content.ts` override tone.
+
+## Visual patterns to reject
+
+Do not default to:
+
+- cream-and-terracotta editorial styling;
+- near-black with a single acid accent;
+- broadsheet hairline grids;
+- `01 / 02 / 03` labels on non-sequential content;
+- Inter everywhere;
+- centred-everything layouts;
+- purple-to-blue “technology” gradients;
+- glass without a material reason;
+- feature-card grids merely because the item count divides by three; or
+- pills and eyebrows that communicate no real state.
+
+Four existing decisions resemble items in that list but are intentional. Do not
+“fix” them, and do not use them as permission to add more of the same:
+
+- the violet field in `Backdrop.tsx` uses the app's onboarding gradient ramp,
+  not a stock technology gradient;
+- the frosted navigation pill samples the live field through `backdrop-filter`,
+  which is the material reason for its glass treatment;
+- the near-black page uses `ink` as a product surface with a complete ramp,
+  rather than as a backdrop for one acid hue; and
+- the three typefaces form a deliberate display/body pairing plus a utility
+  face justified by real structured data.
+
+The complete design guidance—contract steps, mesh-field construction, watch
+list, verification, and ship checklist—lives in
+`.kiro/steering/design-engineering.md` and is loaded into every session.
 
 # Typography
 
-The site uses **three font families and nothing else**. No Google Fonts imports, no
-`next/font/google`, no system stacks, no `ui-sans-serif` / `ui-monospace` / `serif` /
-`cursive` fallbacks, and no new font files.
+The site uses exactly three font families. Do not add Google Fonts imports,
+`next/font/google`, system stacks, `ui-sans-serif`, `ui-monospace`, `serif`, or
+`cursive` fallbacks, and do not add font files.
 
 | Family      | Role                                                        | Token / utility                 |
 | ----------- | ----------------------------------------------------------- | ------------------------------- |
@@ -77,78 +106,82 @@ The site uses **three font families and nothing else**. No Google Fonts imports,
 | **Poppins** | UI meta, labels, buttons, numeric readouts                  | `--font-ui` → `font-ui`, `label` |
 | **Lexend**  | Body copy, subtext, and everything else that is read        | `--font-sans` → `font-sans`, and the document default |
 
-## Rules
+## Implementation rules
 
-- All three are declared in one place: `src/lib/fonts.ts`, self-hosted with
-  `next/font/local` from the WOFF2 files in `src/fonts/`. Import from there —
-  never call a font loader anywhere else.
-- `src/app/globals.css` maps those loaders' CSS variables onto the `--font-*`
-  theme tokens. Change a family there, in the `@theme` block, not in a component.
-- In components, always reach for a token utility (`font-logo`, `font-display`,
-  `font-hand`, `font-ui`, `font-sans`). Never write a literal `font-family`.
-- `--font-mono` and `--font-serif` are deliberately unset, so `font-mono` and
-  `font-serif` generate no CSS. If a monospace look is needed, use `font-ui`
-  with the `nums` utility. `--default-font-family` and
-  `--default-mono-font-family` are pinned to the approved families so Tailwind's
-  Preflight cannot fall back to an operating system font.
-- Weights available: Poppins 400 / 500 / 600, Dürer 400 only, Lexend 100–900
-  (variable). `font-synthesis-weight` is off, so do not ask a face for a weight
-  it does not ship — pick one of these or add the file to `src/fonts/` and
-  declare it in `src/lib/fonts.ts`. Every declared file is preloaded, so do not
-  add a weight speculatively.
+- Declare all three families only in `src/lib/fonts.ts`. They are self-hosted
+  through `next/font/local` using the WOFF2 files in `src/fonts/`. Import those
+  declarations; never call a font loader elsewhere.
+- `src/app/globals.css` maps the loader variables to the `--font-*` theme
+  tokens. Change a family in that file's `@theme` block, never in a component.
+- Components must use token utilities: `font-logo`, `font-display`,
+  `font-hand`, `font-ui`, or `font-sans`. Never write a literal `font-family`.
+- `--font-mono` and `--font-serif` are intentionally unset, so `font-mono` and
+  `font-serif` generate no CSS. For a monospace-like treatment, combine
+  `font-ui` with the `nums` utility. `--default-font-family` and
+  `--default-mono-font-family` are pinned to approved families so Tailwind
+  Preflight cannot fall back to an operating-system font.
+- Available weights are Poppins 400/500/600, Dürer 400 only, and variable
+  Lexend 100–900. Because `font-synthesis-weight` is disabled, request only a
+  weight the selected face ships. If another real weight is needed, add its file
+  to `src/fonts/` and declare it in `src/lib/fonts.ts`. Every declared file is
+  preloaded, so never add a speculative weight.
 - Dürer is a light, single-weight geometric display face. It carries the brand
-  voice, wants slightly negative tracking at large sizes, and is never the right
-  choice for body copy or small text.
-- The wordmark's semibold weight comes from a `-webkit-text-stroke` in `em` on
-  `Wordmark`, because Dürer has no heavier cut. Do not "fix" this by adding a
-  `font-semibold` utility (inert, synthesis is off) or by re-enabling
-  `font-synthesis-weight` (engine-dependent, smears the stems). If a real
-  semibold Dürer file ever arrives, declare it in `src/lib/fonts.ts` and delete
-  the stroke.
-- The originals live in `public/fonts/`, kept as the source material for the
-  WOFF2 builds. The one legitimate place to read them is `next/og` rendering
-  (`opengraph-image.tsx`, `icon.tsx`): satori needs a raw TTF/OTF and cannot use
-  the fingerprinted WOFF2, so it loads the originals with `readFileSync`. Note
-  that satori also fails on variable fonts, so Lexend cannot be used there —
-  reach for Poppins instead of letting it fall through to a system font.
+  voice, prefers slightly negative tracking at large sizes, and must not be used
+  for body copy or small text.
+- `Wordmark` obtains its semibold appearance from a
+  `-webkit-text-stroke` measured in `em`, because Dürer has no heavier cut. Do
+  not add `font-semibold`—it is inert while synthesis is disabled—and do not
+  re-enable `font-synthesis-weight`, which is engine-dependent and smears the
+  stems. If a real semibold Dürer file arrives, declare it in
+  `src/lib/fonts.ts` and remove the stroke.
+- Original font files remain in `public/fonts/` as source material for the
+  WOFF2 builds. Reading them directly is legitimate only for `next/og`
+  rendering in `opengraph-image.tsx` and `icon.tsx`: Satori needs raw TTF/OTF
+  data and cannot consume fingerprinted WOFF2 files. Satori also fails on
+  variable fonts, so use Poppins there instead of Lexend or an implicit system
+  fallback.
 
 # Working agreement
 
-## No unnecessary commands
+## Command discipline
 
-Run a command only when its output changes what you do next.
+Run a command only when its output can change the next action.
 
-- Do not re-run a build, typecheck, or lint that already passed when nothing
-  since could have changed the outcome.
-- Do not verify the same thing twice, or confirm a tool call that already
-  reported success.
-- Do not re-read a file already read, or grep for something already known.
-- Do not run exploratory commands unrelated to the request — directory
-  listings, `git log`, dependency or environment checks — unless the task
-  depends on what they return.
-- Do not print a file back to inspect an edit you just made.
+- Do not repeat a build, typecheck, or lint that already passed unless a later
+  change could affect its result.
+- Do not verify the same fact twice or confirm a tool call that already reported
+  success.
+- Do not reread a file or search again for information already known.
+- Do not run unrelated exploratory commands—such as directory listings,
+  `git log`, dependency checks, or environment checks—unless the task depends
+  on their output.
+- Do not print an edited file merely to inspect the edit you just made.
 
-Read the files you are about to change, once. Run at most one verification pass
-at the end, and only when a change could plausibly break the build — skip it for
-copy, comments, and styling values. Then stop.
+Read each file you intend to change once. At the end, run no more than one
+verification pass, and only when the change could plausibly break the build.
+Skip verification for copy, comments, and styling values. Then stop.
 
-## Report completion with one word
+## Completion response
 
-When the work is finished, the whole reply is `done`. No summary, no file list,
-no bullets describing the edits, no explanation of the approach. The diff is the
+When the work is complete, reply with exactly `done`. Do not include a summary,
+file list, bullet list, or explanation; the diff is the report.
+
+Use more than `done` only when you must:
+
+- answer a question;
+- report that the request could not be completed or was completed differently;
+- flag a decision or an unaccepted risk;
+- report a verification failure that remains; or
+- identify a visual result that cannot be confirmed in this environment. There
+  is no browser here, so rendered-pixel results remain unverified until the user
+  inspects them.
+
+In those cases, provide only the new information and stop.
+
+This completion rule overrides the delivery format in the design-engineering
+document. The pre-coding contract already records the assumption, layout
+direction, and signature; repeating them at completion would duplicate the
 report.
 
-Write more than `done` only to answer a question, to say that something could
-not be done or was done differently than asked, to flag a decision or an
-unaccepted risk, to report a verification failure being left in place, or to name
-a visual result this environment cannot confirm — there is no browser here, so
-anything resting on rendered pixels is unverified until the user looks. In those
-cases write only the new information, then stop.
-
-This rule supersedes the delivery format in the design-engineering document. The
-contract stated before coding already carries the assumption, the layout
-direction, and the signature; restating them on completion is exactly the summary
-this rule exists to prevent.
-
-The full version of this agreement lives in
-`.kiro/steering/working-agreement.md`, which is loaded into every session.
+The complete agreement lives in `.kiro/steering/working-agreement.md` and is
+loaded into every session.

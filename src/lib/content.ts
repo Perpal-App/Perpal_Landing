@@ -237,3 +237,30 @@ export const access = {
   mockAlt:
     "The Perpal markets screen, listing perpetual markets with live prices, next funding, 24-hour change, and volume.",
 } as const;
+
+/* -------------------------------------------------------------------------- */
+/* Privacy                                                                     */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The last word on the page, and the one that has to be exact.
+ *
+ * "Built for privacy" is a heading in the same posture the hero was given on
+ * instruction, and the sentence under it is what earns it. Three facts, each one the
+ * guide's own, in the order they happen to a reader: the keys never leave the
+ * device, the funding legs route through Umbra, and the order is legible before it
+ * is signed.
+ *
+ * What is deliberately absent is any claim about data. Perpal is non-custodial, so
+ * the honest privacy story is custody and funding, not a promise never to sell
+ * something the app does not collect — and a privacy card is exactly where an
+ * unbacked promise would be quoted back at us. "Private" attaches to the funding
+ * routing and nothing else, which is the line the guide draws.
+ *
+ * Written but not on the page: the card renders the field and the emblem only, on
+ * instruction. These two strings are parked here for when it does.
+ */
+export const privacy = {
+  title: "Built for privacy",
+  body: "Your keys stay on your device. Funding routes privately through Umbra, and every order is shown in plain words before you sign it.",
+} as const;
