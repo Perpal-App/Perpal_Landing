@@ -5,7 +5,7 @@ import { cn } from "@/lib/cn";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { handleAnchorClick } from "@/components/motion/scroll";
 
-type Variant = "solid" | "outline" | "glass";
+type Variant = "solid" | "outline" | "glass" | "ember";
 type Size = "sm" | "md";
 type Shape = "key" | "pill";
 
@@ -36,7 +36,9 @@ type ButtonProps = {
  * with no elevation and no travel: the fill deepens on hover and again on
  * press. `glass` is the hero's raised action: a deep purple lens that stays
  * exactly where it sits, blurring the field behind it and closing to opaque on
- * hover while the label swaps inside it.
+ * hover while the label swaps inside it. `ember` is the same flat construction as
+ * `solid` in the closing panel's warm hue, because that panel is the one place a
+ * purple key would fight its own ground.
  *
  * `min-h-11` is the 44px touch floor, and it is a minimum rather than a fixed
  * height so the label can never be clipped when text wraps or scales up.
@@ -92,6 +94,24 @@ const variants: Record<Variant, string> = {
     "backdrop-blur-xl backdrop-saturate-150",
     "hover:bg-grape-deep active:bg-grape-deep",
   ].join(" "),
+  /* The closing panel's action, and the only variant that is not grape.
+     `solid`'s purple key on a warm orange field would put the page's two loudest
+     colours in direct contact, and the panel would win. So this variant is the
+     panel's own hue two steps down — see the token, where the two numbers are
+     forced by contrast rather than picked: white cannot sit on `ember` at all, and
+     a fill the colour of its ground is not an object.
+
+     The label is `paper` at 85% — softened on instruction, and this is as far as it
+     softens. 85% measures 5.0:1 on this fill against the 4.5:1 floor for text at
+     this size and weight, and 6.6:1 once hover deepens the fill. 70% measured
+     3.9:1 and did not clear it, which is the number to remember before anyone
+     lowers the alpha again: full strength has 6.2:1 to spend and this spends most
+     of it.
+
+     Flat, like `solid`: the fill is the affordance, and the label slide is the
+     hover motion every variant already shares. */
+  ember:
+    "bg-ember-deep text-paper/85 hover:bg-ember-deeper active:bg-ember-deeper",
 };
 
 /**
@@ -102,11 +122,17 @@ const variants: Record<Variant, string> = {
  * rasterised once while it sits still and has to be re-composited the moment it
  * moves. The label still swaps on hover — that happens inside the button, so
  * the object itself never budges.
+ *
+ * `ember` holds still for two reasons of its own. It sits in a grid track and
+ * stretches to it, and the magnetic wrapper is an inline-block that would take
+ * that stretch away; and the badges beside it do not move, so an action that
+ * drifted would be the only restless thing in the panel.
  */
 const anchoredVariants: Record<Variant, boolean> = {
   solid: false,
   outline: false,
   glass: true,
+  ember: true,
 };
 
 /**
@@ -159,11 +185,17 @@ export function Button({
     className,
   );
 
+  /* A fragment scrolls this page and is handed to the smooth-scroll layer;
+     anything else leaves the site, so it opens in a new tab and drops the
+     referrer. `noreferrer` covers `noopener` in every engine that matters. */
+  const offSite = href !== undefined && !href.startsWith("#");
+
   const inner = href ? (
     <a
       href={href}
       onClick={(event) => href.startsWith("#") && handleAnchorClick(event, href)}
       className={classes}
+      {...(offSite ? { target: "_blank", rel: "noreferrer" } : {})}
       {...rest}
     >
       <Label>{children}</Label>

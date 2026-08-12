@@ -120,25 +120,45 @@ export function Product() {
             to={-40}
             className="mx-auto mt-auto -mb-28 w-[70%] max-w-[300px] pt-10 will-change-transform sm:-mb-32"
           >
+            {/* `quality` above the default 75, for the same reason as the markets
+                shot in `Access`: this is a dark UI of small type, 1px rules and a
+                banded gauge, which is what a lossy encoder gives up on first.
+
+                The intrinsic size is the trimmed cut-out's own, and it is also this
+                image's ceiling. `mockup.png` is a 1448x1086 render, so the phone in
+                it is 458px wide and the optimiser will not enlarge past that — at
+                the 300px the panel draws it, a 2x screen wants 600 real pixels and
+                can only be given 458. Sharpening the build fixed the blur that was
+                being added on top of that; the rest needs a larger render. */}
             <Image
               src="/assets/app/home.png"
               alt={product.app.alt}
-              width={456}
-              height={948}
+              width={458}
+              height={950}
               sizes="(min-width: 1024px) 320px, 70vw"
+              quality={90}
               className="block w-full drop-shadow-2xl"
             />
           </Parallax>
         </div>
 
-        {/* Argument. */}
-        <div className="flex flex-col rounded-2xl bg-sky px-8 py-11 sm:px-11 sm:py-14">
-          {/* No `whitespace-nowrap` here, unlike the panel beside it. At this
-              display size a 41-character title cannot fit one line in this column
-              at any width the page supports, and forcing it would push the panel
-              wider than the viewport. It wraps, and `text-balance` splits it evenly
-              rather than leaving one word stranded. */}
-          <h2 className="panel-title text-balance text-ink">
+        {/* Argument. `@container` makes the panel the thing its own contents
+            measure themselves against, which two of them now do: the heading sizes
+            itself to fit one line of it, and the terms at the foot pair up once
+            there is room. Both had to stop asking the viewport, because this panel
+            is 62% of the row at `lg` and all of it once the grid stacks — it is
+            wider at a 1000px window than at 1280px. */}
+        <div className="@container flex flex-col rounded-2xl bg-sky px-8 py-11 sm:px-11 sm:py-14">
+          {/* `panel-title-fit` holds the 41-character title on one line by taking
+              the largest size that fits the panel instead of wrapping — around 36px
+              where the step would have set 42px, which is the trade: one line costs
+              a step of size. It cannot overflow, since the size is derived from the
+              width it has to fit, and the panel is size-contained so a nowrapped
+              heading can no longer widen the grid the way the one beside it does.
+
+              Under a 768px panel the fit lifts, the title wraps, and `text-balance`
+              splits it evenly rather than leaving one word stranded. */}
+          <h2 className="panel-title panel-title-fit text-balance text-ink">
             {product.lessons.title}
           </h2>
           {/* Kept at the smaller body step used by the panel beside it. `ink` at 80% rather than

@@ -43,6 +43,26 @@ const JOBS = [
        straight through the phone. */
     fillEnclosed: false,
   },
+  {
+    /* The markets screen, for the closing panel. This render arrives with its
+       alpha already cut, so `key` returns on the first pixel and nothing is keyed
+       — it is here for the trim, which is the expensive part of the problem: the
+       phone stands in the middle of a 3840x1948 plate and occupies a quarter of
+       its width, so shipping it untrimmed would send four times the pixels the
+       page can use and force the layout to position an empty frame instead of a
+       device.
+
+       No height cap, unlike the home shot, and that is the difference between this
+       reading sharp and reading soft. The panel draws it 352px wide, which a 2x
+       display renders with 704 real pixels, and the image optimiser will not
+       enlarge past its source — capped at 1000 tall this cut is only 489 wide, so
+       every retina screen would be upscaling it. Trimmed at full height it is 952
+       wide and every size the page asks for is a downscale. */
+    files: ["public/assets/cta_mockup.png"],
+    out: "public/assets/app",
+    rename: "markets.png",
+    fillEnclosed: false,
+  },
 ];
 
 const TOLERANCE = 26;
@@ -159,10 +179,38 @@ for (const job of JOBS) {
     const { data, w, h, keyed } = await key(file, job);
     const name = job.rename ?? path.basename(file);
 
-    let pipeline = sharp(data, { raw: { width: w, height: h, channels: 4 } })
-      // Feather the hard 0/255 edge the fill leaves, so it is not aliased.
-      .blur(0.6)
-      .trim({ background: { r: 0, g: 0, b: 0, alpha: 0 }, threshold: 2 });
+    /* Feather the hard 0/255 cut the fill leaves, so the edge is not aliased — in
+       the alpha channel only, and only when there is a cut to feather.
+
+       Blurring the whole image is the obvious way to do this and it is wrong twice
+       over. It softens the subject, which on a phone screenshot is every ticker,
+       price and hairline in the UI and the only reason the render exists. And it
+       drags colour out of the pixels the key just emptied: those still hold the
+       plate's RGB under a zero alpha, and libvips does not premultiply before it
+       blurs, so the plate bleeds back into the subject's edge as a pale halo — the
+       exact fringe the erosion pass above went to the trouble of removing.
+
+       Feathering the alpha alone leaves every colour where it was and lets the
+       subject's own edge pixels fade out instead. The blurred channel is written
+       back into the buffer rather than joined onto a pipeline, because `joinChannel`
+       lands after the resize and trim below and would be fighting them for order. A
+       render that already ships cut is returned untouched by `key` and skips this
+       entirely. */
+    if (keyed > 0) {
+      const alpha = await sharp(data, {
+        raw: { width: w, height: h, channels: 4 },
+      })
+        .extractChannel(3)
+        .blur(0.6)
+        .raw()
+        .toBuffer();
+
+      for (let p = 0; p < w * h; p++) data[p * 4 + 3] = alpha[p];
+    }
+
+    let pipeline = sharp(data, {
+      raw: { width: w, height: h, channels: 4 },
+    }).trim({ background: { r: 0, g: 0, b: 0, alpha: 0 }, threshold: 2 });
 
     if (job.box) {
       pipeline = pipeline.resize(job.box, job.box, {
