@@ -57,6 +57,9 @@ export function Nav() {
         <a
           href="#top"
           onClick={(event) => handleAnchorClick(event, "#top")}
+          /* The label lives on the link, not inside `Logo`. What this control does is
+             the link's business; the lockup only knows the name. */
+          aria-label="Perpal home"
           className="-m-1 p-1 text-ink transition-colors duration-300 hover:text-sky-deep"
         >
           {/* Sized by the lockup itself, which is measured against the mark's

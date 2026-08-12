@@ -68,7 +68,7 @@ export function About() {
             element paints over static in-flow content no matter what order the
             DOM is in. This puts the reading column back on top. */}
         <div className="relative shell">
-          <Reveal className="mx-auto max-w-3xl text-center">
+          <Reveal unit="words" className="mx-auto max-w-3xl text-center">
             <h2 className="section-title text-ink">{about.title}</h2>
 
             {/* `ink`, not `muted`, and a step up the scale: this is the section
@@ -76,7 +76,7 @@ export function About() {
                 reader who has not decided anything yet.
 
                 `text-balance` rather than written-in line breaks. The reveal
-                works per character, so it does not need the copy to declare
+                works per word, so it does not need the copy to declare
                 where lines end — which leaves the browser free to even out the
                 rag at whatever width it is actually given. */}
             <div className="mx-auto mt-8 max-w-[44ch] space-y-6 text-lead-lg text-ink">

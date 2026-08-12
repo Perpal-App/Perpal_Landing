@@ -81,9 +81,14 @@ export function Logo({
      ~1.9px above the centre of a 24px line. Without this the mark reads low. */
   return (
     <span className={cn("flex items-center", className)}>
+      {/* No accessible name of its own. `Wordmark` renders the real string "Perpal",
+          which is the name, and the lockup carries no affordance beyond it — so
+          anything about what it *does* belongs to whatever wraps it. The nav wraps it
+          in a link to the top of the page and labels that link "Perpal home"; the
+          footer does not wrap it at all, and used to inherit a screen-reader
+          announcement of "Perpal, Perpal home" on a signature that goes nowhere. */}
       <Mark className={cn("size-8 -translate-y-[6%]", markClassName)} />
       <Wordmark className={cn("text-2xl", wordClassName)} />
-      <span className="sr-only">Perpal home</span>
     </span>
   );
 }

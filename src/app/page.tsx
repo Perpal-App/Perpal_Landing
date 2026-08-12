@@ -3,8 +3,10 @@ import { About } from "@/components/sections/About";
 import { Product } from "@/components/sections/Product";
 import { HowItWorks } from "@/components/sections/HowItWorks";
 import { Faq } from "@/components/sections/Faq";
-import { Access } from "@/components/sections/Access";
 import { Privacy } from "@/components/sections/Privacy";
+import { Access } from "@/components/sections/Access";
+import { Quote } from "@/components/sections/Quote";
+import { Footer } from "@/components/chrome/Footer";
 
 export default function Home() {
   return (
@@ -12,17 +14,18 @@ export default function Home() {
       <Hero />
       <About />
       <Product />
-      {/* Mechanics, then whatever they leave unanswered, then the ask. Both of
-          these sit above `Access` because an objection has to be settled before the
-          button, and an FAQ under it is a footer.
-
-          `Privacy` is the only thing below the ask, and it is not an argument — it
-          is the sentence worth reading last. The button stays the last object on the
-          page you can act on. */}
+      {/* Mechanics, then the questions they leave, then the reassurance, then the
+          ask. Everything a reader might still be weighing comes before the button,
+          which is also why `Privacy` sits here rather than after it: the last thing
+          said before an ask should be the reason to trust it. */}
       <HowItWorks />
       <Faq />
-      <Access />
       <Privacy />
+      <Access />
+      {/* After the ask, and neither one asks for anything: the line the page wants
+          remembered, then the plate it ends on. */}
+      <Quote />
+      <Footer />
     </>
   );
 }

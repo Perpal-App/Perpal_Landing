@@ -83,9 +83,10 @@ import { AppleLogo } from "@/components/brandlogos/Apple";
  * settles what is already here.
  *
  * The range ends on arrival rather than on departure, which matters more here than
- * anywhere else on the page. Only one short panel sits below this one, so scrolling
- * runs out long before this one could leave through the top of the viewport, and a
- * range that assumed it would would strand every element short of its resting place
+ * anywhere else on the page. Two short plates sit below this one and neither is a
+ * viewport tall, so scrolling runs out before this panel could leave through the top,
+ * and a range that assumed it would would strand every element short of its resting
+ * place
  * — see `Lift`. What the reader sees at the foot of the page is the composition, and
  * the movement is only what brought it there.
  */

@@ -42,7 +42,3 @@ next-env.d.ts
 
 # kiro
 /.kiro
-
-# agent instructions
-/AGENTS.md
-/CLAUDE.md

@@ -28,6 +28,24 @@
      meant to be read, including an 11px label, takes `muted`. */
   --color-faint: #6f8090;
 
+  /* -- Dusk ------------------------------------------------------------
+     Type for a field with real colour in it, and the violet family's ink
+     rather than a second near-black.
+
+     It exists because `ink` is the wrong answer on the closing card. That
+     panel is a mid-tone blue, and a mid-tone field is unforgiving: white
+     measures 2.6:1 on it and is simply unavailable, while anything lighter
+     than this fails too, so the only accessible type is dark. `ink` is a
+     cool near-black and reads as exactly that — black on blue. `dusk` is
+     the same depth carrying the brand's violet, so the type reads as a
+     colour belonging to the page rather than as default black.
+
+     5.7:1 on `sky-deep`, 9.6:1 on `sky`, so it holds across that whole ramp
+     at full strength. Full strength is the point: an alpha step drops the
+     deep end of the ramp under the floor, so hierarchy on that panel comes
+     from size and weight instead. */
+  --color-dusk: #2b1e57;
+
   /* -- Accent ----------------------------------------------------------
      Sampled from the sky in public/assets/cloud_bg.jpg, so the painted
      image and the CSS field are the same weather. */
@@ -160,9 +178,33 @@
   --text-d1--line-height: 1;
   --text-d1--letter-spacing: -0.042em;
 
+  /* d2 leads at 1.06, and the reason is the one recorded on d1 above, arriving a
+     second time. This step now sets the quote, which runs to three lines — two
+     boundaries where a descender meets the caps below it, where the earlier 0.92
+     had none to worry about.
+
+     The arithmetic: Dürer's caps reach 0.666em and its descenders fall about
+     0.25em, so ink starts touching below roughly 0.92em of leading — exactly
+     where this sat. `display-bold` then adds a centred 0.035em stroke, which
+     grows the descender downward and the cap upward by half that each, and moves
+     the collision to about 0.95em. 1.06 clears it with a visible channel of
+     around a tenth of an em rather than by a hair, and is still far tighter than
+     any reading measure, so three lines continue to read as one block. */
+  /* Tracking is -0.02em, not the -0.035em the other display steps take, and it is
+     written for the stroked weight rather than for the bare face. This step is only
+     ever set in `display-bold`, whose centred stroke adds half its width to each
+     side of every glyph and so takes 0.035em out of every letter gap while leaving
+     the advance widths alone. At -0.035em on top of that the gaps closed to almost
+     nothing and punctuation, which has the least sidebearing to give, ran into the
+     letter before it — the comma in "with," merged with the h.
+
+     This gives back a little under half of what the stroke takes. Not all of it: a
+     bold face genuinely does set tighter than a light one, so restoring the light
+     cut's gaps in full would read as loose. Half clears the collision and keeps the
+     line looking cut rather than tracked. */
   --text-d2: clamp(2.25rem, 5.4vw, 5rem);
-  --text-d2--line-height: 0.92;
-  --text-d2--letter-spacing: -0.035em;
+  --text-d2--line-height: 1.06;
+  --text-d2--letter-spacing: -0.02em;
 
   --text-d3: clamp(1.75rem, 3.2vw, 2.75rem);
   --text-d3--line-height: 1.04;
@@ -436,6 +478,30 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   font-weight: 500;
+}
+
+/* Display type at a bold weight the face does not ship.
+   Dürer has one light cut and the document turns off `font-synthesis-weight`,
+   so `font-bold` on display type renders nothing. The weight comes from the
+   same stroke the wordmark uses, one step heavier: Dürer's stems are around
+   0.06em and a centred stroke adds its full width to each one, so 0.02em is
+   the wordmark's semibold at 1.33x and 0.035em is a bold at roughly 1.58x.
+   Past that the joins of a light geometric face begin to fill in.
+
+   Tracking has to be paid for, and the step is where that happens. This comment
+   used to argue the opposite — that a stroke fits like a real bold cut and needs
+   no compensation — and that was wrong in a way worth recording. A bold cut is
+   redrawn: thicker stems, and sidebearings redrawn around them. A stroke only
+   grows outward into the sidebearing that is already there, taking half its width
+   from each side of every gap and giving nothing back. So any step set in this
+   utility needs its tracking written for the stroked weight; `d2` carries that
+   working, and a new step using this must do the same rather than inheriting a
+   value measured on the light face.
+
+   In `em`, so it holds anywhere on the display scale, and `currentColor` so it
+   thickens the glyph rather than outlining it. Nothing reflows. */
+@utility display-bold {
+  -webkit-text-stroke: 0.035em currentColor;
 }
 
 /* Clip container for a masked line reveal. Each line animates inside it.

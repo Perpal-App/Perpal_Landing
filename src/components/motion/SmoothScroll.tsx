@@ -20,6 +20,22 @@ import { prefersReducedMotion, setLenis } from "./scroll";
  * Two independent loops would read and write scroll position in an
  * unpredictable order and produce visible stutter on scroll-linked animation.
  *
+ * That order does not happen by itself, and getting it wrong is subtle enough to
+ * be worth spelling out. `gsap.ticker.add` appends, and GSAP's own render is
+ * already on the ticker — it registers at library init, before any application
+ * code runs. So a plain `add(tick)` puts the Lenis advance *after* the render,
+ * and every scroll-linked tween on the page draws against the previous frame's
+ * scroll position.
+ *
+ * At a constant velocity that is invisible: the whole page is one frame behind
+ * and nothing disagrees with anything. It becomes visible the moment velocity
+ * changes, because the size of the error is the frame's scroll delta, and on a
+ * reversal it changes sign. Scroll-driven objects then step against the page
+ * instead of moving with it — worst where two scrubbed timelines overlap, which
+ * on this page is About's mesh and its character band. Hence the third argument
+ * to `add`: `prioritize`, which puts this callback at the head of the list so the
+ * documented order above is the one that actually runs.
+ *
  * `lagSmoothing(0)` is required alongside this. GSAP's default lag smoothing
  * silently adjusts its internal clock after a slow frame, which desynchronises
  * it from the scroll position and shows up as a lurch after any hitch.
@@ -74,7 +90,8 @@ export function SmoothScroll() {
       // gsap.ticker reports seconds, Lenis expects milliseconds.
       lenis.raf(time * 1000);
     };
-    gsap.ticker.add(tick);
+    // `(tick, once = false, prioritize = true)` — see the note above on ordering.
+    gsap.ticker.add(tick, false, true);
     gsap.ticker.lagSmoothing(0);
 
     // Late-arriving webfonts change text metrics, which moves every trigger

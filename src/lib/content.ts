@@ -256,11 +256,114 @@ export const access = {
  * something the app does not collect — and a privacy card is exactly where an
  * unbacked promise would be quoted back at us. "Private" attaches to the funding
  * routing and nothing else, which is the line the guide draws.
- *
- * Written but not on the page: the card renders the field and the emblem only, on
- * instruction. These two strings are parked here for when it does.
  */
 export const privacy = {
   title: "Built for privacy",
   body: "Your keys stay on your device. Funding routes privately through Umbra, and every order is shown in plain words before you sign it.",
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/* The quote                                                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Two sentences, and they are the page's thesis rather than a testimonial.
+ *
+ * Unattributed on purpose. There is no user to quote yet — the app is unreleased —
+ * and inventing a name under a pull quote is the one kind of copy on this page that
+ * would be a lie rather than a stretch. What sits in the marks is the argument
+ * `About` makes at length, compressed to the sentences it was always trying to be.
+ *
+ * The first sentence claims nothing about the product, which is why it can be this
+ * confident: no feature, no venue, no number, nothing that has to ship for the line
+ * to stay true.
+ *
+ * The second is here on instruction, because privacy is the product's main claim and
+ * the page's last statement was silent about it. It repeats the first one's grammar —
+ * "should not cost" twice — so the two read as one argument in two beats rather than as
+ * a statement with a feature bolted on.
+ *
+ * Punctuated as one sentence with a comma between the halves, and no full stop at the
+ * end. Both are deliberate. The comma is a splice, joining two clauses that could each
+ * stand alone; with the parallel grammar carrying it, that reads as one breath rather
+ * than as a missing conjunction, and an "and" there would make the second clause sound
+ * like an addition instead of the same claim restated. It also means "trading" is
+ * lowercase, because it is no longer opening a sentence. Dropping the terminal full
+ * stop is the pull-quote convention the reference sets: a quotation set as an object
+ * does not need to be closed like prose, and at this size a period is a mark the eye
+ * has to account for at the end of the composition.
+ *
+ * Its subject is "trading", not "funding", on the product owner's instruction. Note
+ * what that costs, because the rule at the top of this file is explicit that the guide
+ * forbids exactly this: "private" is scoped to the funding legs, and a claim that
+ * trading does not cost your privacy is the broad version the guide rules out. It is
+ * the same exception the hero already carries, granted the same way, and this is now
+ * the second place on the page standing on it — so if that instruction is ever
+ * withdrawn, both the hero and this line come back for rewording together. Nothing
+ * else moved: "anonymous" and "untraceable" are still absent, there is still no number,
+ * and `privacy.body` still carries the mechanism.
+ *
+ * Broken into lines here rather than left to wrap, the same as `hero.headline` and for
+ * the same reason: the plate is full-bleed, so the measure deciding where a line ends
+ * moves with the viewport, and a quotation that has to hold three lines cannot have
+ * the browser choosing how many it gets. Authored breaks make the count a fact rather
+ * than the outcome of a font-metric estimate.
+ *
+ * 37 / 32 / 36 characters. The near-match between the first and last is worth keeping
+ * for the shape — a centred block reads as composed when its outer lines balance — but
+ * nothing depends on it any more. The quote marks used to be pinned to the corners of a
+ * box sized by the longest line, which made every other line's mark sit further from
+ * its words; they now anchor to their own line, so these three strings can be rewritten
+ * to any lengths without the framing coming apart.
+ *
+ * The break also moved. It used to fall after "cost", which left the second line
+ * opening on "you the money" — a pronoun stranded at the head of a line, reading as
+ * though the sentence had restarted. It now falls after "cost you", so the first line
+ * closes on a complete verb phrase and the second opens on its object.
+ */
+export const quote = {
+  lines: [
+    "Learning to trade should not cost you",
+    "the money you are learning with,",
+    "trading should not cost your privacy",
+  ],
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/* Footer                                                                      */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Two ways to reach the project, and a notice.
+ *
+ * They are treated differently on purpose. X gets its own mark, because a brand glyph
+ * is the one kind of icon that carries information a word cannot — it identifies the
+ * platform faster than reading a URL does, and it is the platform's own identity rather
+ * than a decoration standing in for one. The email is printed in full instead: "Contact"
+ * behind an envelope would be shorter and would tell the reader less, since an address
+ * on the page can be read, copied and judged before anyone clicks.
+ *
+ * What is absent is still the point. There is no support portal, no documentation, no
+ * terms and no privacy policy to link, because none of them exist — this is an
+ * unpublished Android prototype. A footer with three columns of links would be inventing
+ * a company. A Gmail address is what is true, and it dates the page honestly.
+ *
+ * `notice` takes the year rather than hard-coding it. Written in, it would be wrong by
+ * one every January and nobody would notice; taken from the clock in a shared module it
+ * would be evaluated on both the server and the client and could disagree across a New
+ * Year boundary. Passed in from a server component, it is fixed at build and correct on
+ * every deploy, and the sentence still lives here whole rather than assembled in the
+ * component from three fragments.
+ */
+export const footer = {
+  email: {
+    label: "perpal.app@gmail.com",
+    href: "mailto:perpal.app@gmail.com",
+  },
+  /* `label` is the accessible name for the icon link, which has no text of its own. */
+  x: {
+    label: "Perpal on X",
+    href: "https://x.com/PerpalApp",
+  },
+  notice: (year: number) => `© ${year} Perpal. All rights reserved.`,
 } as const;
