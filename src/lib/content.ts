@@ -161,19 +161,96 @@ export const product = {
 /* -------------------------------------------------------------------------- */
 
 /**
- * The mechanics, between the argument and the questions.
+ * The mechanics, between the argument and the reassurance.
  *
- * Title only, on instruction. The steps are not written yet, and an invented set
- * would be the worst possible placeholder here: this is the section where the claim
- * rules bite hardest after the FAQ, because a numbered sequence reads as a promise
- * about what the app already does.
+ * There is no section title here, on instruction, and nothing replaced it. "How it
+ * works" named the pair from above, and what it added over the two headings under it
+ * was the word "how" — which "One trade, end to end" and "Browse first, sign later"
+ * both already are. A signpost over two panels that announce themselves is a line the
+ * reader has to get past to reach the answer. The section keeps its `#how` anchor,
+ * because that is a URL and not copy.
  *
- * "How it works", sentence case, because it is a statement the section answers
- * rather than a signpost you navigate by — the same reason the panel headings above
- * it are not the uppercase `section-title`.
+ * Two answers rather than two halves of one: what happens across a whole trade, and
+ * what you are allowed to do before any of it starts. The first is a sequence and is
+ * drawn as one; the second is an invitation and is drawn as a market you can poke.
+ *
+ * This was eight steps in two columns, then five, and is now four labels. Two rounds of
+ * cutting, both on instruction, and they cut in different directions.
+ *
+ * The first removed steps that were not Perpal's. "Sign in" was Privy provisioning a
+ * Solana wallet and "Add a trading wallet" was Perpal deriving the second one — true,
+ * and true of every wallet app ever shipped, so they described the genre rather than the
+ * product. "Browse the markets" left the list too, and went somewhere better: it is the
+ * second panel now, whose whole subject is that live Pacifica prices are open to look at
+ * with nothing to sign first, so the claim is demonstrated instead of asserted.
+ *
+ * The second removed prose rather than steps. What is left names the four moments and
+ * says nothing else about them, and the accounting for that is on `steps` below.
+ *
+ * The word "private" appears once, in the lede, on the funding legs. That is the one
+ * place the engineering guide's scope allows it — the M -> T and T -> destination links —
+ * and both legs are named in the same sentence. No fee, leverage or latency figure
+ * appears anywhere here, and the sample series in the market panel says in plain words
+ * that it is a sample.
  */
 export const how = {
-  title: "How it works",
+  trade: {
+    title: "One trade, end to end",
+    /* The lede carries the two claims worth keeping from the paragraphs the steps used to
+       have — Umbra on both funding legs, and nothing signed before the order is read.
+       Both were already on the page; neither is new.
+
+       One string, and one paragraph on the page. It was briefly two entries set as two
+       columns, to hold a reading measure across a plate that runs to 950px before the
+       section splits — that is reverted on instruction. It reads as one sentence of
+       thought, so it is set as one block of text and allowed to wrap where it wraps. */
+    lede: "Umbra relays the money in and out, and that leg is the one that stays private. In between, nothing is signed until you have read the whole order.",
+    /* Four labels rather than four paragraphs, on instruction: the node is a name on a
+       wire, and a wire diagram whose nodes each hold a paragraph is a list with
+       decoration around it.
+       What that costs is worth writing down, because it is the section's substance —
+       gone from the page are the SOL reserve, the six fields an order is spelled out in,
+       the local signature, the key that never leaves the device, the reduce-only close,
+       and position management as a named step. Every one of them is a fact, not a claim,
+       so nothing on the page has become less true; the page simply says less. Position
+       tracking still appears under `product.app`, and the funding legs survive in the
+       lede above. The rest belongs in the FAQ when it is written.
+       Named for what you do, in the order you do it. */
+    steps: [
+      "Fund through Umbra",
+      "Check the order",
+      "Sign on your device",
+      "Withdraw through Umbra",
+    ],
+    /* Real alt text, because the screenshot is evidence rather than decoration: it is
+       the screen the five steps above happen on. Described in the order the screen
+       reads, and the description stops where the crop does. */
+    shotAlt:
+      "The Perpal trade screen for BTC-USD, showing the mark price and the day's change above the 24-hour volume, open interest, oracle price and funding rate, a 15-minute candle chart below them, and long and short order buttons at the foot of the screen.",
+  },
+
+  markets: {
+    /* Two verbs in the order they happen, which is the whole promise: the market is
+       readable before anything is signed, and the panel under this heading proves it
+       by being readable. */
+    title: "Browse first, sign later",
+    body: "Live Pacifica prices for BTC, ETH and SOL are open to look at, with nothing to sign first.",
+    panel: {
+      /* Three markets, because three is what the product trades — not because a row
+         of three looks tidy. */
+      tablist: "Sample markets",
+      /* What the contract is, without the leverage the app's own screen shows beside
+         it. A number there would be a claim; the word is a fact. */
+      kind: "Perpetual",
+      window: "24h",
+      range: "24h range",
+      inspect: "Inspect the sample price series",
+      /* The panel draws a price series, so it has to say out loud that the series is
+         invented. Placed under the chart rather than beside the number, because a
+         reader who has started reading prices is looking at the chart. */
+      note: "Sample prices, drawn to show the shape of the screen. The live Pacifica markets are in the app.",
+    },
+  },
 } as const;
 
 /* -------------------------------------------------------------------------- */

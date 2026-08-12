@@ -63,6 +63,21 @@ const JOBS = [
     rename: "markets.png",
     fillEnclosed: false,
   },
+  {
+    /* The trade screen, for the `How it works` thread. Same plate problem as the
+       markets shot and the same answer: the phone stands in the middle of a
+       3840x1948 canvas, so this job is mostly the trim.
+
+       No height cap, for the reason recorded above — the panel draws it around
+       208px wide and a 2x display asks for 416, which a capped cut could not
+       supply without being enlarged. `fillEnclosed` stays off because the screen
+       is a dark chart on a dark ground and an enclosed-region pass would key the
+       whole of it. */
+    files: ["public/assets/hiw_mockup.png"],
+    out: "public/assets/app",
+    rename: "trade.png",
+    fillEnclosed: false,
+  },
 ];
 
 const TOLERANCE = 26;

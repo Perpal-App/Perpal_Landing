@@ -130,9 +130,19 @@
   --color-ember-deeper: #7d3a0d;
 
   /* -- Semantic --------------------------------------------------------
-     Market state. Darkened from their dark-theme values to clear 4.5:1
-     on paper. */
-  --color-long: #128a4d;
+     Market state, darkened from their dark-theme values to clear 4.5:1 on
+     paper — which is the whole reason these two exist as separate tokens
+     from a chart library's green and red.
+
+     `long` was two steps lighter than this and measured 4.40:1, so it missed
+     the floor its own comment claimed by a hair. Nothing consumed it yet, so
+     it is corrected here rather than worked around at the call site. It now
+     reads at 5.07:1 against `short`'s 5.09:1, which also means a rise and a
+     fall carry the same visual weight instead of the green sitting a shade
+     lighter than the red for no reason a reader could name.
+
+     Hue and chroma are untouched; only lightness moved. */
+  --color-long: #0f7f46;
   --color-short: #d2264c;
 
   /* -- Families --------------------------------------------------------
@@ -468,6 +478,19 @@
     --panel-title-size: min(var(--text-panel), 4cqi);
     white-space: nowrap;
   }
+}
+
+/* Figures that hold their column.
+   Prices, percentages and ranges are read against each other and, in the market panel,
+   against themselves a moment earlier — a crosshair readout that changes digits sixty
+   times a second reflows on every one of them with proportional figures. This is the
+   `nums` the typography rules name as the monospace-like treatment: `font-ui` with this
+   on top, rather than a fourth family for numbers.
+
+   Digits only. `tabular-nums` sets every figure to one advance width and leaves letters,
+   currency marks and the en dash between a range alone. */
+@utility nums {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Small caps technical label. Used for eyebrows, table heads, meta. */
