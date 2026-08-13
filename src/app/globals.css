@@ -129,6 +129,22 @@
   --color-ember-deep: #9b4a12;
   --color-ember-deeper: #7d3a0d;
 
+  /* -- Gold ------------------------------------------------------------
+     Two steps, and they exist for exactly one thing: the sparks on the
+     cheering mascot, which have to read as precious metal rather than as a
+     warm hue. Metal is not a colour, it is a ramp — a highlight, a body and
+     a shadow — so a single flat fill cannot do it, and `ember` cannot
+     either: that is the closing panel's action colour and it reads as
+     orange, which is the thing being avoided here.
+
+     The highlight is mixed from `gold` at use rather than stored, so this
+     stays two tokens rather than three. `gold-deep` measures about 4.3:1 on
+     paper, which the sparks do not need — they are `aria-hidden`
+     decoration — but it is what keeps them from dissolving into a white
+     capsule at their dark end. */
+  --color-gold: #f0c14b;
+  --color-gold-deep: #a06a11;
+
   /* -- Semantic --------------------------------------------------------
      Market state, darkened from their dark-theme values to clear 4.5:1 on
      paper — which is the whole reason these two exist as separate tokens
@@ -230,7 +246,18 @@
      `lead` it reads as a caption. Leading is tighter than `lead`'s 1.5 for the
      same reason: at this size the lines are short, so a tall line box pulls them
      apart instead of holding them together. */
-  --text-lead-lg: clamp(1.375rem, 2.1vw, 1.875rem);
+  /* The preferred term carries a rem offset rather than being pure `vw`, and
+     that is the whole fix. At `2.1vw` with a `1.375rem` floor the vw term was
+     only 6.7px at 320px and 13.4px at 640px, so the minimum won everywhere below
+     about 1050px — the step was not a clamp on a phone or a tablet, it was a flat
+     22px, which put this measure at roughly 24 characters a line inside the 260px
+     the About column actually has.
+
+     `0.87rem + 0.96vw` is a real ramp through the range instead: 17px at 320,
+     21px at 768, 26px at 1280, and it reaches the same 30px ceiling at 1680.
+     Solved from the two ends rather than guessed — 13px of growth over 1360px of
+     viewport is 0.956vw, and 17 - 0.956% of 320 leaves the 13.9px offset. */
+  --text-lead-lg: clamp(1.0625rem, 0.87rem + 0.96vw, 1.875rem);
   --text-lead-lg--line-height: 1.34;
   --text-lead-lg--letter-spacing: -0.016em;
 
@@ -243,7 +270,18 @@
      Its curve starts from a 1.1rem base rather than pure vw, so the step falls off
      more slowly than the display clamps as the viewport narrows — a panel heading
      has a panel's padding either side of it, not the page's. */
-  --text-panel: clamp(1.875rem, 1.1rem + 2.4vw, 2.75rem);
+  /* 24px to 44px. The floor was 30px, and it had the fault `lead-lg` had: at
+     `1.1rem + 2.4vw` the preferred term is only 25px at a 320px viewport, so the
+     minimum won everywhere below about 520px and the step was a flat 30px on every
+     phone. A panel heading has the panel's padding inside the page's, so at 320px
+     it is setting into roughly 250px — 30px there costs three lines for a
+     five-word title.
+
+     `1.083rem + 2.08vw` ramps instead: 24px at 320, 33px at 768, and it still
+     reaches the same 44px ceiling at 1280. Solved from the ends — 20px of growth
+     across 960px of viewport is 2.08vw, and 24 less 2.08% of 320 leaves the
+     17.3px offset. */
+  --text-panel: clamp(1.5rem, 1.083rem + 2.08vw, 2.75rem);
 
   --text-tag: 0.6875rem;
   --text-tag--line-height: 1;
@@ -533,6 +571,40 @@
   }
 }
 
+/* The FAQ question step is solved against its own row, not the viewport. At the
+   320px layout the row's content box is 244px; after the 32px marker and 8px gap,
+   the longest current question has 204px. Poppins 600 sets that question at about
+   14em, so 5.3cqi gives it 13px there and reaches the regular 16px step by 375px.
+   The 12px floor is the legibility limit, not a target. If the questions change,
+   remeasure the longest one before changing this divisor. */
+@utility faq-question {
+  font-size: clamp(0.75rem, 5.3cqi, 1rem);
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+/* The closing quote keeps `d2` as its ceiling, but its three authored lines are an
+   invariant. The longest mark-bearing line measures 15.5em, whose exact reciprocal
+   is 6.45%; 6.2cqi leaves metric tolerance while scaling from the plate itself. The
+   14px floor only guards widths below current phone layouts. */
+@utility quote-copy {
+  font-size: clamp(0.875rem, 6.2cqi, var(--text-d2));
+  line-height: var(--text-d2--line-height);
+  letter-spacing: var(--text-d2--letter-spacing);
+  white-space: nowrap;
+}
+
+/* Store badges share a row on narrow screens. Their type follows the narrow viewport
+   until it reaches the established 12px/18px steps; using viewport units here keeps
+   the badges intrinsically sized when the desktop grid returns to `w-fit`. */
+@utility store-badge-verb {
+  font-size: clamp(0.5625rem, 3vw, 0.75rem);
+}
+
+@utility store-badge-platform {
+  font-size: clamp(0.875rem, 4.5vw, 1.125rem);
+}
+
 /* Figures that hold their column.
    Prices, percentages and ranges are read against each other and, in the market panel,
    against themselves a moment earlier — a crosshair readout that changes digits sixty
@@ -542,6 +614,101 @@
 
    Digits only. `tabular-nums` sets every figure to one advance width and leaves letters,
    currency marks and the en dash between a range alone. */
+/* The lesson terms' size, as one continuous ramp instead of five steps.
+   
+   In `cqi` because the pill's room comes from the list it wraps in, not from the
+   window — the same argument `panel-title-fit` makes, and the same argument
+   `PillCloud` makes about this exact panel being narrower at 1280px than at 1000px.
+   A pill is a little over a third of that list at every width, so a length measured
+   as a share of the list is a length measured as a share of the pill.
+   
+   All three ramps are solved from their ends rather than chosen, across the real
+   range this list spans — about 252px inside a small phone to about 686px at the
+   widest desktop:
+   
+     type      3.3cqi, floored at 10px and capped at 28px
+     inline    2.4cqi, floored at  8px and capped at 32px
+     block     2.4cqi, floored at  8px and capped at 24px
+   
+   One proportion each and no rem offset, and that absence is the whole point. These
+   pills are content-width and two share a row, so the pair's width has to stay inside
+   the row at every size — and an offset is a constant the row never gets back. With
+   `0.532rem + 1.38cqi` the type was 12px at a 252px list where the pure proportion
+   wanted 9px, so the pair overflowed and broke to one pill a line on exactly the
+   screens the arrangement was supposed to survive. Expressed as a share of the list,
+   the pill is the same fraction of the row at every width, which is what makes the
+   pairing hold rather than happen to hold.
+   
+   The ceilings were 18px, 24px and 16px, and they were the reason the terms looked
+   undersized on a desktop: at a 915px list the type wanted 33px and the cap held it
+   at 18px, so the pills stopped growing about a third of the way through the range
+   the panel keeps growing over. Raised, a term sets at 28px in a 79px capsule there,
+   which is where the reference sits.
+   
+   The ratio came down as the ceilings went up, and that is not a hedge — it is what
+   pays for them. The budget, so a future change can be checked rather than guessed:
+   the widest row is "Duolingo-style lessons" beside "Live perp markets", 39
+   characters, and expressed as fractions of the list it has to satisfy
+   
+     39 x advance x type + 4 x inline  <=  0.92 - gap/list
+   
+   where 0.92 is what is left after the 8% row inset. At the old 3.6cqi and 2.5cqi that
+   came to 0.844 against an allowance of 0.875 at the tightest width — a 16px margin,
+   and nothing at all if Lexend's average advance is nearer 0.55em than the 0.53em
+   assumed. That is too close for a figure that is estimated rather than measured. At
+   3.3cqi and 2.4cqi it comes to 0.778, which holds with about 50px to spare even on
+   the pessimistic advance.
+   
+   The tightest width is not the smallest one, incidentally: it is a 527px list, which
+   is this panel at `lg`, where the row has just split to 62% and the type is still
+   ratio-bound rather than capped.
+   
+   The floors are where it stops being solvable. Below about a 270px list, which is
+   roughly a 338px viewport, two of these labels cannot share a row at any size a
+   person would read, so the floor gives up the guarantee rather than the legibility
+   and the longest pair may take a row each. Every phone in current use is above that.
+   
+   Leading stays at 1.25 rather than the default 1.5. Labels no longer wrap, so this is
+   about the capsule's proportion: a tall line box on a single-line label reads as a
+   lozenge instead of a pill. */
+/* The trade fan's node labels, sized so the longest one never breaks.
+   
+   "No wrapping" turns the usual relationship inside out. Normally a size is chosen
+   and the copy wraps to suit it; here the copy is fixed, the row it sits in is fixed,
+   and the size is whatever leaves the longest label on one line. So it is solved
+   rather than picked:
+   
+     font-size = (label's available width) / (the longest label's advance)
+   
+   The divisor is 13.8, and it is measured from the copy rather than assumed.
+   "Review & confirm the order" is 22 glyphs and 4 spaces; Poppins sets a mixed-case
+   glyph at roughly 0.58em and a space at 0.26em, so 22 x 0.58 + 4 x 0.26 = 13.8em.
+   **If that string changes, this number changes with it** — a longer step name will
+   silently overflow its card, because nothing here is allowed to wrap and rescue it.
+   
+   `100cqi` is the node column, so the available width is the column less everything
+   between it and the label: the cord gutter, the card's own padding, the step number
+   and the gap beside it. That total differs per breakpoint, so it arrives as
+   `--fan-inset` from the list rather than being written in here.
+   
+   The ceiling is 20px, which is where the desktop step already sat. The floor is 8px
+   and it is a genuine floor rather than a target — at a 320px viewport the column
+   leaves about 109px for a label that wants 13.8 times its own size, and 8px is what
+   that arithmetic returns. It is small. The alternative at that width is a wrapped
+   label, and a shorter fourth step is the only way to have neither. */
+@utility fan-label {
+  font-size: clamp(0.5rem, (100cqi - var(--fan-inset)) / 13.8, 1.25rem);
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+@utility pill-size {
+  font-size: clamp(0.625rem, 3.3cqi, 1.75rem);
+  line-height: 1.25;
+  padding-inline: clamp(0.5rem, 2.4cqi, 2rem);
+  padding-block: clamp(0.5rem, 2.4cqi, 1.5rem);
+}
+
 @utility nums {
   font-variant-numeric: tabular-nums;
 }

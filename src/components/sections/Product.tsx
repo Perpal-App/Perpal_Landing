@@ -67,7 +67,15 @@ export function Product() {
             `isolate` gives the panel its own stacking context, so the disc's
             negative z-index stays inside it — above the fill, below everything
             in flow. */}
-        <div className="relative isolate flex flex-col overflow-hidden rounded-2xl bg-lilac px-8 pt-11 sm:px-11 sm:pt-14">
+        {/* `px-6` below `sm`, not `px-8`. At a 320px viewport this plate is 300px
+            wide, so 32px a side was spending 64px of it on air and leaving the
+            heading 236px to set into. 24px gives the type back 16px, which is a
+            line of it at this size. */}
+        {/* `@container`, so the heading can measure the plate rather than the window.
+            It has to: this plate is 38% of the row at `lg` and all of it once the grid
+            stacks, so the viewport does not tell it how much room it has — the same
+            reason the plate opposite is already a container. */}
+        <div className="@container relative isolate flex flex-col overflow-hidden rounded-2xl bg-lilac px-6 pt-11 sm:px-11 sm:pt-14">
           {/* A disc of `lilac-deep`, the deep step of the panel's own colour, so
               the shape is a shade of the surface rather than a second colour
               arriving. Around 2:1 against the fill: enough to read as a distinct
@@ -95,9 +103,30 @@ export function Product() {
             aria-hidden
             className="pointer-events-none absolute -bottom-[30%] -left-[28%] -z-10 aspect-[7/6] w-[116%] rounded-[50%] bg-lilac-deep"
           />
+          {/* Shrink to fit one line, rather than either wrapping or overflowing. Both
+              of the earlier answers were wrong in the same way — they let the type size
+              decide and made the line breaks the consequence.
+     
+              A plain `whitespace-nowrap` pushed the title through the plate's edge at
+              `lg`, where the content box is 289px and this needs about 480px, and
+              `overflow-hidden` cut it off without a scrollbar to say so. Letting it
+              wrap instead cost the row a second line of heading, and because the plate
+              opposite pushes its terms down with `mt-auto`, that height arrived over
+              there as a gap between its copy and its pills.
+     
+              So the size follows the width. `6.9cqi` is not a taste: the plate
+              opposite fits a 41-character title with `4cqi`, which is `100 / (41 x
+              0.6)` for Poppins' average advance, and the same arithmetic on these 24
+              characters gives 6.94. `min()` against `--text-panel` means it only ever
+              shrinks — past a 634px plate the step is the smaller number and the
+              heading sets at full size, matching its neighbour.
+     
+              The gate is where shrinking would start costing more than wrapping:
+              6.9cqi reaches 24px — the floor of `--text-panel` — at a 352px plate. On
+              anything narrower the title wraps, and `text-balance` splits it evenly. */}
           <h2
             data-lift="20"
-            className="panel-title text-ink sm:whitespace-nowrap"
+            className="panel-title text-balance text-ink @min-[22rem]:[--panel-title-size:min(var(--text-panel),6.9cqi)] @min-[22rem]:whitespace-nowrap"
           >
             {product.app.title}
           </h2>
@@ -134,6 +163,16 @@ export function Product() {
           <Parallax
             from={40}
             to={-40}
+            /* 70% of the plate, capped at 300px. The proportion is the point: the
+               device is evidence beside the copy rather than the subject of the
+               panel, and filling the column made it the subject.
+
+               The known cost, accepted rather than overlooked: the plate's width is
+               not monotonic, because the row splits to `38fr` at `lg`. Its content
+               box falls from about 530px stacked to 289px, so the device is around
+               300px on a handset, 300px on a tablet, and 202px at 1024px before
+               climbing back. If that dip ever needs closing, `min-w-[240px]` does it
+               without changing any other width. */
             className="mx-auto mt-auto -mb-28 w-[70%] max-w-[300px] pt-10 will-change-transform sm:-mb-32"
           >
             {/* `quality` above the default 75, for the same reason as the markets
@@ -164,7 +203,10 @@ export function Product() {
             there is room. Both had to stop asking the viewport, because this panel
             is 62% of the row at `lg` and all of it once the grid stacks — it is
             wider at a 1000px window than at 1280px. */}
-        <div className="@container flex flex-col rounded-2xl bg-sky px-8 py-11 sm:px-11 sm:py-14">
+        {/* Matched to the plate beside it. The two are one row at `lg` and stacked
+            below it, so a padding that differed would be most obvious exactly where
+            they sit on top of each other. */}
+        <div className="@container flex flex-col rounded-2xl bg-sky px-6 py-11 sm:px-11 sm:py-14">
           {/* `panel-title-fit` holds the 41-character title on one line by taking
               the largest size that fits the panel instead of wrapping — around 36px
               where the step would have set 42px, which is the trade: one line costs
@@ -207,7 +249,29 @@ export function Product() {
               a column by about 7px at one end of the scroll. */}
           <PillCloud
             items={product.lessons.topics}
-            className="mt-auto gap-5 pt-12 sm:gap-6"
+            /* A tighter gap below `sm`, because the gap is width the terms do not
+               get: at a 252px list, 20px between two pills is 20px off a 106px pill.
+               12px hands most of that back.
+     
+               `my-auto`, not `mt-auto`, and the difference only shows at `lg`. From
+               there the two plates are one row, and the row's height is set by the
+               phone in the plate opposite — which leaves this plate about 236px more
+               than its own content needs. That slack cannot be removed, only placed,
+               and `mt-auto` placed all of it in one gap between the copy and the
+               terms. Splitting it halves the largest gap on the panel and reads as
+               air on both sides of the block rather than as a hole above it.
+     
+               `lg:pt-0` goes with it: the 48px was the designed distance from the copy
+               to the terms, and once the auto margins are supplying more than that, it
+               only makes the top gap unequal to the bottom one. It is safe to drop
+               because the slack at `lg` is never zero — the phone guarantees it.
+     
+               `lg:gap-y-8` opens the rows apart from `lg` up, which is more of the same
+               argument: the block has height to fill, and 32px between four rows spends
+               24px of the slack somewhere it reads as rhythm. The column gap stays at
+               24px — that one is width the two terms on a row would otherwise have, and
+               the pair is budgeted against it. */
+            className="my-auto gap-3 pt-10 sm:gap-6 sm:pt-12 lg:gap-x-6 lg:gap-y-8 lg:pt-0"
           />
         </div>
       </Lift>

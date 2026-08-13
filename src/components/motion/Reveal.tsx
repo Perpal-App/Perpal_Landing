@@ -73,12 +73,22 @@ const BAND = {
   words: { stagger: 0.3, gap: 0.3 },
 } as const;
 
+/**
+ * The widest viewport that counts as narrow, in px — one below `lg`.
+ *
+ * `lg` rather than `sm`, because the thing that breaks the default window is a
+ * reading column taller than the viewport, and that is still true of a tablet.
+ */
+const NARROW_MAX = 1023;
+
 export function Reveal({
   children,
   className,
   unit = "chars",
   start = "top 85%",
   end = "bottom 60%",
+  narrowStart,
+  narrowEnd,
   scrub = true,
 }: {
   children: ReactNode;
@@ -102,6 +112,33 @@ export function Reveal({
    */
   start?: string;
   end?: string;
+  /**
+   * The same window, for viewports below `lg`, where the default pair inverts.
+   *
+   * The defaults above are built on the assumption that finishing at `bottom 60%`
+   * leaves the element on screen. That holds while the element is shorter than the
+   * viewport and fails the moment it is taller — and a reading column is taller
+   * than a phone. At `H = 800` on an 800px screen, `bottom 60%` is not reached
+   * until the column's *top* sits 320px above the top of the window, so the last
+   * words resolve after the reader has scrolled past them and the copy reads as
+   * permanently half-lit.
+   *
+   * Narrow viewports therefore get a window that ends against the top of the
+   * screen instead of the bottom of the element: `top 200px` is the column's top
+   * arriving 200px down, and since the panel puts 112px of its own padding above
+   * that column, it is the card's top edge arriving at about 88px — level with the
+   * nav. The band is finished by the time the section reaches the chrome.
+   *
+   * The trade is real and is the right way round: on a screen this size the band
+   * cannot both finish before the top leaves and still resolve each word as the
+   * reader arrives at it, because the column does not fit. Copy that is legible
+   * early beats copy that is grey when read.
+   *
+   * Left unset, both fall back to `start` and `end`, so a short element — the
+   * quotation, which does fit — keeps one window at every width.
+   */
+  narrowStart?: string;
+  narrowEnd?: string;
   /**
    * `true` to track scroll position exactly, or a number of seconds of catch-up.
    *
@@ -145,12 +182,12 @@ export function Reveal({
       groups.push(unit === "words" ? split.words : split.chars);
     });
 
-    const ctx = gsap.context(() => {
+    const build = (from: string, to: string) => {
       const everything = groups.flat();
       gsap.set(everything, { opacity: FLOOR });
 
       const tl = gsap.timeline({
-        scrollTrigger: { trigger: root, start, end, scrub },
+        scrollTrigger: { trigger: root, start: from, end: to, scrub },
       });
 
       let at = 0;
@@ -160,15 +197,26 @@ export function Reveal({
            next group is already fading before this one lands. */
         at += (group.length - 1) * stagger + gap;
       });
-    }, root);
+    };
+
+    /* `gsap.matchMedia` rather than a query read once at mount. It rebuilds the
+       timeline when the query flips and reverts the old one itself, which is what
+       makes both ranges correct on a device that rotates — and rotation is the one
+       viewport change this project does not otherwise handle, since
+       `ScrollTrigger` is configured not to refresh on resize. */
+    const mm = gsap.matchMedia();
+    mm.add(`(min-width: ${NARROW_MAX + 1}px)`, () => build(start, end));
+    mm.add(`(max-width: ${NARROW_MAX}px)`, () =>
+      build(narrowStart ?? start, narrowEnd ?? end),
+    );
 
     return () => {
       /* Tween first, then the DOM it points at. Reverting the split first would
          leave the context holding elements that no longer exist. */
-      ctx.revert();
+      mm.revert();
       splits.forEach((split) => split.revert());
     };
-  }, [unit, start, end, scrub]);
+  }, [unit, start, end, narrowStart, narrowEnd, scrub]);
 
   return (
     <div ref={ref} className={className}>

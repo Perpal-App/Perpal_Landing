@@ -22,12 +22,12 @@ import { Reveal } from "@/components/motion/Reveal";
  * it is a statement with no competing element — no eyebrow, no action — which is the
  * case the rule against centring everything explicitly leaves open.
  *
- * Dürer, at the `d2` display step: 36px at a phone's width, 80px at a desktop's. This
- * is the only place on the page besides the hero and the wordmark where the display
- * face appears, and a quotation is exactly what it is for. `d2` and not `d1`: the hero
- * owns the largest step, and a quotation matching it would be arguing with the
- * headline. `display-bold` supplies the weight — Dürer ships one light cut, so the
- * bold is a stroke on the outlines; the reasoning is on the utility.
+ * Dürer, capped by the `d2` display step and solved against the plate below it: 6.2%
+ * of its inner width on a phone, then back onto `d2` as the plate gains room. This is the
+ * only place on the page besides the hero and the wordmark where the display face
+ * appears, and a quotation is exactly what it is for. `d2` and not `d1`: the hero
+ * owns the largest step. `display-bold` supplies the weight — Dürer ships one light
+ * cut, so the bold is a stroke on the outlines; the reasoning is on the utility.
  *
  * The step sits on the `blockquote` rather than on the paragraph, so every `em` further
  * in — the lines' side room, the marks themselves — resolves against the quotation's own
@@ -44,16 +44,13 @@ import { Reveal } from "@/components/motion/Reveal";
  * where it belongs, since Dürer's descenders are a property of the face and not of
  * this screen.
  *
- * The longest line measures about 15.5em once its side room is counted. Against the
- * plate's inner width that fits from roughly an 850px viewport upward, with the margin
- * widening as the viewport grows, so `max-w-full` is a backstop rather than a working
- * constraint at any desktop size. Below that a line clamps and rewraps, which is the
- * same graceful failure the phone already relies on — never an overflow.
+ * The longest line measures about 15.5em once its side room is counted. The reciprocal
+ * would be 6.45% of the plate; `quote-copy` uses 6.2% to leave room for font-metric
+ * variation, then caps at `d2` once the full display step fits.
  *
- * On a phone the authored lines wrap again and the block runs to about six. That is
- * the honest answer rather than a failure: 107 characters cannot be three lines at
- * 360px without dropping the display face to body size, which it is not for. The
- * hierarchy is unchanged — it is still the only thing on the plate.
+ * The authored breaks stay the only breaks at every width. On a phone the type yields
+ * to preserve those three lines; keeping a larger display floor would turn authored
+ * structure back into accidental browser wrapping.
  *
  * Reduced motion and no-JavaScript leave the copy at full contrast, which `Reveal`
  * handles by never starting.
@@ -130,7 +127,7 @@ export function Quote() {
           the four corner dots stay put, because they are what the plate is
           measured against and a specimen card whose registration marks drift is
           not registered to anything. */}
-      <Lift className="relative isolate overflow-hidden rounded-2xl border border-line-strong bg-paper-dim px-6 py-14 text-center sm:px-14 sm:py-20">
+      <Lift className="@container relative isolate overflow-hidden rounded-2xl border border-line-strong bg-paper-dim px-4 py-10 text-center sm:px-14 sm:py-20">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 -z-10 opacity-60"
@@ -174,8 +171,13 @@ export function Quote() {
             above centre lands the last word where the eye already is. Nothing is
             passed for `scrub` — tracking the scroll exactly is the default now, and
             the reasoning for that lives on the prop. */}
-        <Reveal unit="words" start="top 90%" end="center 40%">
-          <blockquote data-lift="12" className="text-d2">
+        <Reveal
+          unit="words"
+          start="top 90%"
+          end="center 40%"
+          narrowEnd="bottom 70%"
+        >
+          <blockquote data-lift="12" className="quote-copy">
             <p className="display-bold font-display text-ink">
               {quote.lines.map((line, i) => {
                 const opens = i === 0;

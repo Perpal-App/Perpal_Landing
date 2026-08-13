@@ -42,12 +42,12 @@ import { AppleLogo } from "@/components/brandlogos/Apple";
  * label is the same string the nav pill and the hero carry, read from `content.ts`,
  * so three buttons deep in one page cannot drift into three names.
  *
- * The device stands in the opposite corner, cut in half by the panel's bottom edge.
- * It is the markets screen, not the home screen `Product` shows, and that is what
- * keeps two device shots on one page from reading as one shot used twice: the panel
- * that argues shows the app's front door, the panel that asks shows the thing you
- * would open it for. The top half is also the half worth keeping — BTC, ETH and SOL
- * are its first three rows.
+ * The device rises from the centre of the panel on narrow screens, then moves to the
+ * opposite corner at `md`. It is the markets screen, not the home screen `Product`
+ * shows, and that is what keeps two device shots on one page from reading as one shot
+ * used twice: the panel that argues shows the app's front door, the panel that asks
+ * shows the thing you would open it for. The top half is also the half worth keeping
+ * — BTC, ETH and SOL are its first three rows.
  *
  * Half is by construction rather than by measurement. The plate is trimmed to the
  * phone, so `bottom-0` plus a translate of half the image's own height puts the cut
@@ -69,10 +69,9 @@ import { AppleLogo } from "@/components/brandlogos/Apple";
  * screen upscales it. `quality={90}` finishes the same thought: a near-black screen
  * of 1px rules and small type is the first thing the default 75 flattens.
  *
- * Below `md` it is gone rather than shrunk. There is no room beside a full-width
- * action for a phone worth looking at, and since a lazily loaded image inside a
- * `display: none` box never intersects the viewport, the narrow layout does not pay
- * for it either.
+ * Below `md` it moves underneath the offer rather than competing beside it. The two
+ * store states share a row, the waitlist spans them, and bottom padding reserves the
+ * device's half-height so the real app remains the panel's closing image on mobile.
  *
  * One motion idea, and it is this panel's arrival: three depths on one clock. The
  * device rises 48px, the heading 20, the offer 12, each from below its own layout
@@ -105,7 +104,7 @@ export function Access() {
           The panel is also the scroll trigger — see `Lift`. One timeline measured
           on this box, so the three `data-lift` offsets below are one movement at
           three depths rather than three animations that happen to overlap. */}
-      <Lift className="relative isolate flex min-h-[22rem] flex-col items-start overflow-hidden rounded-2xl bg-linear-to-r from-ember to-ember/40 px-8 py-11 sm:px-11 sm:py-14 lg:min-h-[26rem]">
+      <Lift className="relative isolate flex min-h-[22rem] flex-col items-start overflow-hidden rounded-2xl bg-linear-to-r from-ember to-ember/40 px-5 pt-9 pb-52 sm:px-8 sm:pt-11 sm:pb-72 md:px-11 md:py-14 lg:min-h-[26rem]">
         <h2 className="panel-title text-ink" data-lift="20">
           {access.title}
         </h2>
@@ -115,39 +114,43 @@ export function Access() {
             The grid is sized by its content, so the action inherits the pair's
             width by spanning them rather than by being given a number.
 
-            One column at 360px, where two badges side by side would each be under
-            150px and every label would break across three lines. Stacked, the
-            equal track keeps all three the same width there too.
+            Below `md`, the pair shares the row and its type follows each badge's
+            container. The waitlist spans both tracks, matching the reference's one
+            centred action group without pretending either store state is a button.
 
             The offer travels least of anything here, and the badges and the action
             travel together. The thing a reader has to hit should be the steadiest
             object on the panel, and a button that arrives on its own clock from its
             own labels is three moving targets instead of one still one. */}
         <div
-          className="mt-7 grid w-fit grid-cols-1 gap-3 sm:mt-9 sm:grid-cols-2 sm:gap-4"
+          className="mt-6 grid w-full max-w-sm grid-cols-2 gap-2.5 self-center sm:mt-8 sm:gap-4 md:mt-9 md:w-fit md:max-w-none md:self-start"
           data-lift="12"
         >
           {/* Android leads. It is the platform that ships first, and on an
               Android-first product it should not be second. */}
           <StoreBadge
-            mark={<AndroidLogo className="size-8 shrink-0" />}
+            mark={<AndroidLogo className="size-6 shrink-0 sm:size-8" />}
             verb={access.android.verb}
             platform={access.android.platform}
           />
           <StoreBadge
-            mark={<AppleLogo className="size-7 shrink-0" />}
+            mark={<AppleLogo className="size-5.5 shrink-0 sm:size-7" />}
             verb={access.ios.verb}
             platform={access.ios.platform}
           />
-          <Button href={cta.join} variant="ember" className="sm:col-span-2">
+          <Button
+            variant="ember"
+            size="sm"
+            className="col-span-2 sm:min-h-12 sm:px-7 sm:text-base"
+          >
             {cta.label}
           </Button>
         </div>
 
         {/* Last in the DOM so it is read after the offer, and behind it in paint
             order so it can never cover it — `isolate` on the panel keeps that
-            negative index from escaping into the page. `right-11` is the panel's own
-            padding line, so the device respects the same margin the copy does.
+            negative index from escaping into the page. It centres below `md`; above
+            that, `right-11` returns it to the panel's own padding line.
 
             No shadow, unlike the phone in `Product`. That one appears to stand on
             the panel floor and needs the contact; this one is cut off mid-body, so
@@ -156,21 +159,23 @@ export function Access() {
             around the crispest edge on the page.
 
             It travels four times as far as the offer, which is what makes the group
-            read as depth rather than as a page settling. Two transforms stack on it
-            and neither is fighting the other: `translate-y-1/2` is a CSS individual
-            transform property and GSAP writes `transform`, and the used matrix is
-            the individual properties first, then that. So the crop stays half the
-            device and the lift happens underneath it. */}
-        <Image
-          src="/assets/app/markets.png"
-          alt={access.mockAlt}
-          width={922}
-          height={1886}
-          sizes="(min-width: 1024px) 352px, 216px"
-          quality={90}
-          data-lift="48"
-          className="pointer-events-none absolute right-11 bottom-0 -z-10 hidden w-54 translate-y-1/2 md:block lg:w-88"
-        />
+            read as depth rather than as a page settling. Below `md`, the wrapper owns
+            the static half-device crop while the image owns GSAP's lift. At `md` the
+            wrapper becomes boxless, restoring the image's original desktop crop and
+            parallax transform without changing the narrow composition. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 mx-auto w-48 translate-y-1/2 sm:w-64 md:contents">
+          <Image
+            src="/assets/app/markets.png"
+            alt={access.mockAlt}
+            width={922}
+            height={1886}
+            sizes="(min-width: 1024px) 352px, (min-width: 768px) 216px, (min-width: 640px) 256px, 192px"
+            quality={90}
+            data-lift="48"
+            data-lift-fade="narrow"
+            className="pointer-events-none block h-auto w-full md:absolute md:right-11 md:bottom-0 md:-z-10 md:w-54 md:translate-y-1/2 lg:w-88"
+          />
+        </div>
       </Lift>
     </section>
   );

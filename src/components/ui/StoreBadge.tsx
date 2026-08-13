@@ -59,7 +59,7 @@ export function StoreBadge({
   return (
     <span
       className={cn(
-        "inline-flex min-h-14 items-center justify-center gap-3 rounded-xl border px-5 py-3 text-ink",
+        "inline-flex min-h-14 items-center justify-center gap-2 rounded-xl border px-2.5 py-2.5 text-ink sm:gap-3 sm:px-5 sm:py-3",
         "border-ink/70 transition-colors duration-200 ease-swift hover:border-ink hover:bg-paper/40",
         className,
       )}
@@ -69,10 +69,10 @@ export function StoreBadge({
         {/* Sentence case, not the `label` utility. An uppercase letterspaced
             eyebrow is for naming a field or a state; this is the first half of a
             sentence the next line finishes. */}
-        <span className="font-ui text-xs leading-none font-medium tracking-[-0.005em]">
+        <span className="store-badge-verb font-ui leading-none font-medium tracking-[-0.005em]">
           {verb}
         </span>
-        <span className="mt-1.5 font-ui text-lg leading-none font-semibold tracking-[-0.02em]">
+        <span className="store-badge-platform mt-1 font-ui leading-none font-semibold tracking-[-0.02em] sm:mt-1.5">
           {platform}
         </span>
       </span>

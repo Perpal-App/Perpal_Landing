@@ -55,7 +55,7 @@ export function Faq() {
       /* Clears the fixed nav when an anchor jump lands here. */
       style={{ scrollMarginTop: "6rem" }}
     >
-      <Lift className="rounded-2xl bg-surface px-8 py-11 sm:px-11 sm:py-14">
+      <Lift className="rounded-2xl bg-surface px-4 py-9 sm:px-8 sm:py-12 lg:px-11 lg:py-14">
         <h2 className="panel-title text-center text-ink" data-lift="20">
           {faq.title}
         </h2>
@@ -78,7 +78,7 @@ export function Faq() {
               data-reveal
               /* `group`, so the summary's marker can read the open state without a class
                  being toggled on it by anything. */
-              className="group rounded-2xl bg-paper px-6 py-5 ring-1 ring-line-strong/60 sm:px-7"
+              className="group @container rounded-2xl bg-paper px-3 py-4 ring-1 ring-line-strong/60 sm:px-6 sm:py-5 lg:px-7"
             >
               <summary
                 /* The default triangle goes, and the whole row becomes the target: a
@@ -86,7 +86,7 @@ export function Faq() {
                    beside it would be a worse control than the one the browser gave us.
                    Both markers have to be named — `list-none` for the standard one and the
                    webkit pseudo-element for Safari's. */
-                className="flex cursor-pointer list-none items-center justify-between gap-6 font-ui text-base font-semibold text-ink [&::-webkit-details-marker]:hidden"
+                className="faq-question flex cursor-pointer list-none items-center justify-between gap-2 font-ui font-semibold text-ink sm:gap-4 lg:gap-6 [&::-webkit-details-marker]:hidden"
               >
                 {item.question}
 
@@ -95,7 +95,7 @@ export function Faq() {
                     bar never moves and the eye reads a state change rather than a spin. */}
                 <span
                   aria-hidden
-                  className="relative grid size-9 shrink-0 place-items-center rounded-full ring-1 ring-line-strong transition-colors duration-200 ease-swift group-hover:ring-ink/30"
+                  className="relative grid size-8 shrink-0 place-items-center rounded-full ring-1 ring-line-strong transition-colors duration-200 ease-swift group-hover:ring-ink/30 sm:size-9"
                 >
                   <span className="absolute h-[1.5px] w-3.5 rounded-full bg-ink" />
                   <span className="absolute h-3.5 w-[1.5px] rounded-full bg-ink transition-transform duration-200 ease-swift group-open:scale-y-0" />

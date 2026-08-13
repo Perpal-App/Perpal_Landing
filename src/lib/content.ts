@@ -76,6 +76,43 @@ export const cta = {
   join: site.repo,
 } as const;
 
+/**
+ * The hero's waitlist control, in the order a reader meets it.
+ *
+ * `submit` is short because it sits inside the field rather than beside it: the
+ * trigger already said "Join Waitlist", and the box supplies the object, so the
+ * verb on its own is the whole instruction. That keeps the action's name
+ * consistent through the flow rather than introducing a second word for it.
+ *
+ * `success` is present tense, which the page's own convention above allows —
+ * everything here is written as though the app is shipping. It is worth being
+ * clear about what that does and does not cover: it licenses the tense, not the
+ * claim. Nothing stores this address yet, so this line has to become true at
+ * launch or leave the copy, exactly as the note at the top of this file requires
+ * of every other feature named on the page.
+ *
+ * `invalid` says what happened and what to do, and names no field the reader
+ * cannot see.
+ */
+export const waitlist = {
+  /* The field's accessible name. The placeholder cannot be it: a placeholder
+     disappears the moment anyone types, which is when a reader is most likely to
+     need telling what the box wanted. */
+  label: "Email address",
+  placeholder: "Email",
+  submit: "Join",
+  success: "You're in",
+  /* Two messages, because "invalid" covers two different mistakes and telling
+     them apart is the difference between a message that helps and one that only
+     scolds. An empty field has not been filled in; a malformed one has. */
+  /* Both kept under about forty characters, and that is a layout constraint as
+     much as an editorial one: they occupy a slot the control reserves rather than
+     a line it grows, so a message that wrapped to two rows on a 360px screen
+     would reintroduce the shift the slot exists to prevent. */
+  empty: "Enter your email address.",
+  invalid: "That does not look like an email address.",
+} as const;
+
 /* -------------------------------------------------------------------------- */
 /* About                                                                       */
 /* -------------------------------------------------------------------------- */

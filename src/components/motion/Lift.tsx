@@ -14,6 +14,10 @@ import { useIsomorphicLayoutEffect } from "./use-isomorphic-layout-effect";
  * scroll position. Depth is the number: the further back an element reads, the
  * further it travels.
  *
+ * `data-lift-fade="narrow"` keeps an item transparent until the final quarter of
+ * that travel below `md`. It is opt-in for deep artwork that can cross foreground
+ * controls while the compact composition is still settling.
+ *
  * How this differs from `Parallax`, which also drifts things against the scroll:
  *
  *   One trigger and one timeline for the whole group, every tween at position 0.
@@ -62,6 +66,7 @@ export function Lift({
 
     const items = gsap.utils.toArray<HTMLElement>("[data-lift]", root);
     if (!items.length) return;
+    const narrow = window.matchMedia("(max-width: 47.999rem)").matches;
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
@@ -79,6 +84,15 @@ export function Lift({
         /* `from`, so the end of the tween is whatever the element's own layout
            position is. No rest value is written down twice. */
         tl.from(el, { y, ease: "none", duration: 1 }, 0);
+
+        if (narrow && el.dataset.liftFade === "narrow") {
+          tl.fromTo(
+            el,
+            { opacity: 0 },
+            { opacity: 1, ease: "none", duration: 0.25 },
+            0.75,
+          );
+        }
       });
     }, root);
 

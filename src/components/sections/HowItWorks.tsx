@@ -174,19 +174,30 @@ export function HowItWorks() {
             {trade.lede}
           </p>
 
+          {/* A grid at every width now, rather than a stack that became one at `lg`.
+              The device keeps a share of the row instead of a fixed column below `lg`,
+              so the wiring has somewhere to run on a phone — 34% leaves the nodes two
+              thirds, which is what they need once their labels are allowed two lines.
+     
+              `gap-x` is written twice, here and as `--fan-bridge` in `TradeFan`, and
+              has to stay in step: the cords are drawn across this gap to reach the
+              device, so the value is the drawing's as much as the layout's. That is
+              the same bargain the other three fan numbers already make. */}
           <div
             data-lift="12"
-            className="mt-10 lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:items-center lg:gap-x-6"
+            className="mt-10 grid grid-cols-[minmax(0,36%)_minmax(0,1fr)] items-center gap-x-2 sm:grid-cols-[min(44%,17rem)_minmax(0,1fr)] sm:gap-x-4 lg:gap-x-6"
           >
-            {/* The source: the whole render, at its own aspect, filling a fixed column. */}
-            <figure className="relative mx-auto w-[68%] max-w-[17rem] lg:mx-0 lg:w-full lg:max-w-none">
+            {/* The source: the whole render, at its own aspect, filling its column. */}
+            <figure className="relative w-full">
               <Image
                 src="/assets/app/trade.png"
                 alt={trade.shotAlt}
                 width={903}
                 height={1894}
                 quality={90}
-                sizes="(min-width: 1024px) 272px, 68vw"
+                /* 272px is the ceiling from `sm` up, since the column caps there;
+                   below it the column is 36% of the viewport. */
+                sizes="(min-width: 640px) 272px, 36vw"
                 className="block h-auto w-full drop-shadow-2xl"
               />
             </figure>

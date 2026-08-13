@@ -75,7 +75,19 @@ export function About() {
             mesh has to stay a direct child of the plate — and the mesh should not
             be lifting anyway, since it is the layer the column reads against. */}
         <Lift className="relative shell">
-          <Reveal unit="words" className="mx-auto max-w-3xl text-center">
+          {/* The narrow window ends against the top of the screen rather than the
+              bottom of this column, because below `lg` the column is taller than
+              the viewport and the default pair would not finish until its top had
+              scrolled well past the nav — leaving the last words grey at the point
+              they are read. `top 200px` is this column's top arriving 200px down,
+              which with the panel's own 112px of padding above it is the card's
+              edge reaching the chrome. The reasoning is on the prop. */}
+          <Reveal
+            unit="words"
+            narrowStart="top 92%"
+            narrowEnd="top 200px"
+            className="mx-auto max-w-3xl text-center"
+          >
             <h2 className="section-title text-ink" data-lift="20">
               {about.title}
             </h2>

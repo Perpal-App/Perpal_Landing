@@ -11,7 +11,7 @@ import { cn } from "@/lib/cn";
  * reader's operating system at a size and in a style this page does not control, and the
  * repo's own rules put it on the refuse list. The reaction is the face.
  *
- * Three moods, and each one has to be legible at 36px: eyes wide and a small round mouth
+ * Three moods, and each one has to be legible at 36 by 44 pixels: eyes wide and a small round mouth
  * while it waits for an answer, eyes closed and a grin when the answer was right, a
  * downturned mouth and one tear when it was not. Nothing here carries information on its
  * own — the words in the bubble say what happened — so the whole drawing is `aria-hidden`
@@ -29,12 +29,47 @@ export type MascotMood = "asking" | "right" | "wrong" | "cheering";
 
 const POP = "animate-[mascot-pop_320ms_var(--ease-snap)_both]";
 
+/**
+ * The gold ramp the sparks are filled with.
+ *
+ * A gradient rather than a fill, because metal is a ramp and not a hue: a
+ * highlight across one shoulder, the body colour through the middle, a shadow at
+ * the far tip. Flat gold is just yellow, which is what this is not meant to be.
+ * The diagonal is what makes the four points catch the light unevenly, the way a
+ * faceted thing does.
+ *
+ * The id is fixed rather than generated. `Mascot` has no hooks and is a server
+ * component, so there is no `useId` available to it, and a module counter would
+ * differ between the server render and the client one. Two mascots on a page
+ * therefore emit the same id twice — an HTML validity nit rather than a bug, since
+ * both definitions are identical and every spark resolves to the same ramp. If
+ * this ever needs to be per-instance, the component has to take the id as a prop
+ * rather than become a client component for it.
+ */
+const SPARK_GOLD = "perpal-spark-gold";
+
+function SparkGold() {
+  return (
+    <defs>
+      <linearGradient id={SPARK_GOLD} x1="0.1" y1="0" x2="0.9" y2="1">
+        {/* Mixed at use, so the ramp costs two tokens rather than three. */}
+        <stop
+          offset="0%"
+          stopColor="color-mix(in oklab, var(--color-gold) 45%, #fff)"
+        />
+        <stop offset="45%" stopColor="var(--color-gold)" />
+        <stop offset="100%" stopColor="var(--color-gold-deep)" />
+      </linearGradient>
+    </defs>
+  );
+}
+
 /** A four-point star, for the mood that has something to celebrate. */
 function Spark({ x, y, r }: { x: number; y: number; r: number }) {
   return (
     <path
       d={`M${x} ${y - r}L${x + r * 0.3} ${y - r * 0.3}L${x + r} ${y}L${x + r * 0.3} ${y + r * 0.3}L${x} ${y + r}L${x - r * 0.3} ${y + r * 0.3}L${x - r} ${y}L${x - r * 0.3} ${y - r * 0.3}Z`}
-      fill="var(--color-sky-deep)"
+      fill={`url(#${SPARK_GOLD})`}
     />
   );
 }
@@ -43,6 +78,7 @@ function Face({ mood }: { mood: MascotMood }) {
   if (mood === "cheering") {
     return (
       <>
+        <SparkGold />
         <path
           d="M10.2 17.4q2.8-3.2 5.6 0"
           fill="none"
@@ -145,17 +181,31 @@ export function Mascot({
   return (
     <svg
       aria-hidden
-      viewBox="0 0 36 40"
+      viewBox="0 0 36 44"
       /* Inline rather than an `animation-delay` utility: the pop is set through the
          `animation` shorthand, which carries a delay of its own, and utility order inside
          a layer is Tailwind's to decide. A style attribute is not up for argument. */
       style={delay ? { animationDelay: `${delay}ms` } : undefined}
-      className={cn("block size-9 shrink-0", POP, className)}
+      /* 36x44, one CSS pixel per viewBox unit. It has to match the box's own
+         ratio: `size-9` would have fitted a 44-unit drawing into 36px of height
+         and letterboxed the width down to about 29px, so the taller body would
+         have arrived as a narrower mascot. */
+      className={cn("block h-11 w-9 shrink-0", POP, className)}
     >
       {/* A dome on a scalloped hem: three notches, so the bottom edge reads as cloth
           rather than as a rounded rectangle. */}
       <path
-        d="M18 3c7.7 0 14 6.3 14 14v12.6c0 1.9-2.3 2.8-3.6 1.4l-1.2-1.3a1.9 1.9 0 0 0-2.8 0l-1.3 1.4a1.9 1.9 0 0 1-2.8 0l-1.3-1.4a1.9 1.9 0 0 0-2.8 0l-1.3 1.4a1.9 1.9 0 0 1-2.8 0l-1.3-1.4a1.9 1.9 0 0 0-2.8 0L7.6 31C6.3 32.4 4 31.5 4 29.6V17C4 9.3 10.3 3 18 3Z"
+        /* The dome is unchanged — 14 units of radius about (18, 17) — and all of
+           the added height goes into the straight sides below it: 19.6 units
+           rather than 12.6. That is where a ghost's body should grow, since
+           lengthening the dome would only have made the head bigger.
+
+           The hem below is written in relative commands, so extending that one
+           vertical carries the whole scalloped edge down with it and the wave
+           keeps its shape. Only the three absolute values on the return up the
+           left side had to move with it, by the same 7. The viewBox gained 4 to
+           keep the clearance the tear needs when it drips. */
+        d="M18 3c7.7 0 14 6.3 14 14v19.6c0 1.9-2.3 2.8-3.6 1.4l-1.2-1.3a1.9 1.9 0 0 0-2.8 0l-1.3 1.4a1.9 1.9 0 0 1-2.8 0l-1.3-1.4a1.9 1.9 0 0 0-2.8 0l-1.3 1.4a1.9 1.9 0 0 1-2.8 0l-1.3-1.4a1.9 1.9 0 0 0-2.8 0L7.6 38C6.3 39.4 4 38.5 4 36.6V17C4 9.3 10.3 3 18 3Z"
         fill="var(--color-lilac)"
       />
       <Face mood={mood} />

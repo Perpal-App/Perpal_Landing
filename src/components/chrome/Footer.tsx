@@ -86,11 +86,10 @@
  * The address is set in Poppins. It is not prose — an email address is structured data,
  * the same category as a price or a decoded field, which is the utility face's job.
  *
- * It takes `text-lead`, 17px to 22px, having started at 14px. Once the heading above it
- * went to the wordmark's size the old step left a 36-to-14 jump, which does not read as
- * hierarchy so much as an afterthought — and the address is the one thing in this block
- * anybody is here to use. At the top of the step it measures 5.4:1 on the crown, still
- * clear of the 4.5:1 floor for type this side of 24px.
+ * It takes 14px on a phone, then `text-lead` from `sm`, 17px to 22px. The compact step
+ * keeps the real address on one line in the narrow stack; once the footer becomes a row,
+ * the larger step restores its rank beside the wordmark. At the top it measures 5.4:1 on
+ * the crown, still clear of the 4.5:1 floor for type this side of 24px.
  *
  * The mark sits in a chip that is *deeper* than the field it sits on, which is the
  * opposite of the reference and the only version that works here. The reference puts a
@@ -184,7 +183,7 @@ export function Footer() {
       <Lift>
         <div
           data-lift="96"
-          className="relative isolate flex min-h-[16rem] flex-col justify-between gap-12 overflow-hidden rounded-2xl bg-linear-to-b from-grape to-grape-deep px-7 py-9 will-change-transform sm:px-10 sm:py-11 lg:min-h-[20rem]"
+          className="relative isolate flex min-h-0 flex-col justify-between gap-8 overflow-hidden rounded-2xl bg-linear-to-b from-grape to-grape-deep px-5 py-7 will-change-transform sm:min-h-[16rem] sm:gap-12 sm:px-10 sm:py-11 lg:min-h-[20rem]"
         >
           <div
             aria-hidden
@@ -207,22 +206,22 @@ export function Footer() {
               the two layers above are positioned, and a positioned element paints over
               static in-flow content whatever the DOM order. This puts the name back on
               top of the field it signs. */}
-          <div className="relative flex flex-col gap-10 sm:flex-row sm:items-start sm:justify-between">
+          <div className="relative flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between sm:gap-10">
             {/* Bigger and heavier than anywhere else the lockup appears, because this
                 is the one place it is a signature rather than a control. The nav's copy
                 has to sit inside a 56px capsule and get out of the way; this one is the
                 last thing on the page and can be the size it wants.
 
                 Both halves move together on the lockup's measured 4:3, so the mark
-                stays on the cap line: 40/30 on a phone, 48/36 from `sm` up. The step is
-                there because 48px of Dürer plus a 44px chip under it is most of a
-                360px screen's height budget. */}
+                stays on the cap line: 32/24 on a phone, 48/36 from `sm` up. The step
+                keeps the signature clear without letting it dominate the compact
+                footer stack. */}
             <div>
               <Logo
                 bold
                 className="text-paper"
-                markClassName="size-10 sm:size-12"
-                wordClassName="text-3xl sm:text-4xl"
+                markClassName="size-8 sm:size-12"
+                wordClassName="text-2xl sm:text-4xl"
               />
 
             {/* The chip is 44px exactly, so the touch target and the drawn object are
@@ -234,7 +233,7 @@ export function Footer() {
               target="_blank"
               rel="noreferrer"
               aria-label={footer.x.label}
-              className="mt-6 inline-flex size-11 items-center justify-center rounded-full bg-grape-deep/75 text-paper ring-1 ring-paper/20 transition duration-200 ease-swift hover:-translate-y-px hover:bg-grape-deep/90 hover:ring-paper/45 focus-visible:outline-paper active:translate-y-0 active:bg-grape-deep"
+              className="mt-4 inline-flex size-11 items-center justify-center rounded-full bg-grape-deep/75 text-paper ring-1 ring-paper/20 transition duration-200 ease-swift hover:-translate-y-px hover:bg-grape-deep/90 hover:ring-paper/45 focus-visible:outline-paper active:translate-y-0 active:bg-grape-deep sm:mt-6"
             >
                 <XMark className="size-[18px]" />
               </a>
@@ -255,9 +254,9 @@ export function Footer() {
                   class, because that variable is the hook the utility is built around —
                   it is how `panel-title-fit` lowers the same value — so there is one
                   `font-size` declaration and no two utilities racing on source order.
-                  `--text-3xl` and `--text-4xl` are the same 30px and 36px the wordmark
-                  takes, read from the theme instead of restated. */}
-              <h2 className="panel-title text-paper [--panel-title-size:var(--text-3xl)] sm:[--panel-title-size:var(--text-4xl)]">
+                  `--text-2xl` and `--text-4xl` are the same 24px and 36px the wordmark
+                  takes at those widths, read from the theme instead of restated. */}
+              <h2 className="panel-title text-paper [--panel-title-size:var(--text-2xl)] sm:[--panel-title-size:var(--text-4xl)]">
                 {footer.email.title}
               </h2>
 
@@ -280,7 +279,7 @@ export function Footer() {
               <address className="mt-1 not-italic">
                 <a
                   href={footer.email.href}
-                  className="inline-flex min-h-11 items-center font-ui text-lead font-medium text-paper underline decoration-paper/40 underline-offset-[0.3em] transition-colors duration-200 ease-swift hover:decoration-paper focus-visible:outline-paper"
+                  className="inline-flex min-h-11 items-center font-ui text-sm font-medium text-paper underline decoration-paper/40 underline-offset-[0.3em] transition-colors duration-200 ease-swift hover:decoration-paper focus-visible:outline-paper sm:text-lead"
                 >
                   {footer.email.label}
                 </a>
@@ -288,7 +287,7 @@ export function Footer() {
             </div>
           </div>
 
-          <p className="relative font-ui text-sm text-paper/80">
+          <p className="relative font-ui text-xs text-paper/80 sm:text-sm">
             {footer.notice(new Date().getFullYear())}
           </p>
         </div>

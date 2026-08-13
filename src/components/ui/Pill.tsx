@@ -31,11 +31,22 @@ import { cn } from "@/lib/cn";
  * pill grow to fill its half of the row, the space a short term does not need has to
  * fall either side of the word instead of piling up to its right.
  *
- * Two size steps, then a third. The last one is a container step rather than a
- * breakpoint, matched to the width at which the terms pair up, so a pill only gets
- * taller and its label larger once it has a full half-row to hold. Horizontal
- * padding stops at that point: past it the pill's width comes from `flex-grow`, so
- * `px` no longer decides how much room sits beside the label.
+ * Type and padding are one utility, `pill-size`, and one continuous ramp rather than
+ * a ladder of steps. The arithmetic and the reasons live on it in globals.css; what
+ * matters here is why the size is not written as classes at all.
+ *
+ * It is measured in `cqi`, against the list this pill wraps in, because the list is
+ * what decides how much room the label has. `PillCloud` makes the same argument at
+ * length: this panel is 62% of a row at `lg` and the whole of it once the grid
+ * stacks, so it is wider at a 1000px window than at 1280px, and a `sm:` step was
+ * answering a question about the viewport that nobody had asked. A pill is a little
+ * over a third of the list at every width, so a share of the list is a share of the
+ * pill.
+ *
+ * Stepping it also showed at the seams. Five breakpoints across a range this wide
+ * means five places where a pill jumps a size and its label reflows, and the label
+ * reflowing is the visible part — a term that sat on one line at 511px of list took
+ * two at 512px.
  */
 export function Pill({
   children,
@@ -52,7 +63,7 @@ export function Pill({
     <li
       style={style}
       className={cn(
-        "rounded-full bg-linear-to-b from-paper to-grape-ink px-6 py-4 text-center text-base font-medium text-ink shadow-bulge sm:px-8 sm:py-5 sm:text-lg @3xl:py-6 @3xl:text-xl",
+        "pill-size rounded-full bg-linear-to-b from-paper to-grape-ink text-center font-medium text-ink shadow-bulge",
         className,
       )}
     >

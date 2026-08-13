@@ -16,20 +16,38 @@ import { useIsomorphicLayoutEffect } from "@/components/motion/use-isomorphic-la
  * groups of two, so a row per element would put a grouping into the document that
  * does not exist in the content. Equal grid columns were the other option, and they
  * would hand "Market news" the same width as "Duolingo-style lessons" — the gap
- * beside the short term simply moves inside it. So the pairing is done with three
+ * beside the short term simply moves inside it. So the pairing is done with two
  * properties on the terms themselves:
  *
  *   a minimum width of just over a third, so three can never share a line;
- *   `flex-grow`, so the two on a line divide what is left over and stay in
- *   proportion to their labels — the longer term keeps the longer pill;
  *   a per-row inset, so the rows step sideways instead of stacking flush.
  *
- * All three wait until the list itself is 672px wide. That is a container query and
- * not a breakpoint because this panel is 62% of the section's grid at `lg` and the
- * whole width of it once the grid stacks, so the viewport says nothing useful about
- * how much room the terms have — at 1280px the panel is narrower than it is at
- * 1000px. Below that width the terms keep their own widths and centre, because two
- * of these labels side by side would each be wrapping onto three lines.
+ * Above that minimum each pill takes its own label's width. `flex-grow` used to
+ * divide the row between the pair instead, and it had to go: it decided the pill and
+ * left the label to fit, and the label does not fit. A stretched pill holds the
+ * longest of these terms on one line only once the list passes about 637px, and the
+ * list is 527px at `lg` and 476px on a large phone — so the majority of the terms
+ * were setting on two lines at the majority of widths. Sizing the pill from the label
+ * puts the dependency the right way round, and the row keeps the ragged proportional
+ * look it is drawn with, the longer term simply holding the longer pill.
+ *
+ * What that costs is a row that no longer reaches both edges. The inset is what makes
+ * that read as composition rather than as slack.
+ *
+ * All three apply at every width, and the arrangement is the same object on a phone
+ * as on a desktop — only the pill's own size steps, which `Pill` handles.
+ *
+ * They used to wait until the list was 672px wide, and that threshold was wrong
+ * twice over. It dropped the composition on every phone and tablet, which is the
+ * visible half. The less visible half is that it dropped it on most desktops too:
+ * this panel is 62% of the section's grid at `lg`, so its content box is about 527px
+ * at 1024px and 532–660px while the grid is stacked — all under 672px. The rows only
+ * ever stepped past roughly a 1240px viewport, which is not what the arrangement was
+ * drawn for.
+ *
+ * The measurement is still a container query rather than a breakpoint, and that part
+ * was always right: the viewport says nothing useful about how much room the terms
+ * have, since at 1280px this panel is narrower than it is at 1000px.
  *
  * Two motions, kept on separate properties so they cannot overwrite each other: the
  * entrance on `y`, the parallax on `yPercent`. GSAP tracks those as separate values
@@ -149,10 +167,25 @@ export function PillCloud({
               } as CSSProperties
             }
             className={cn(
-              "@2xl:ms-[var(--pill-lead)] @2xl:me-[var(--pill-trail)]",
-              /* 38% is the whole mechanism: two of these plus the 24px gap and the
-                 8% inset come to 87% of the row, and a third cannot fit. */
-              !alone && "@2xl:min-w-[38%] @2xl:grow",
+              "ms-[var(--pill-lead)] me-[var(--pill-trail)]",
+              /* A floor and nothing else. 38% is what caps the row at two: three of
+                 them plus the gaps come to more than the row, so a third can never
+                 join. Above the floor each pill takes its label's own width.
+     
+                 It is deliberately not `grow`, and no longer `basis` either. Both of
+                 those make the pill a fixed share of the row and hand the label
+                 whatever is left, which inverts the dependency — the label then has
+                 to fit the pill. It does not fit: a stretched pill holds the longest
+                 term on one line only once this list passes about 637px, and the list
+                 is 527px at `lg` and 476px on a large phone, so five of eight terms
+                 wrapped to two lines at nearly every width.
+     
+                 Content width reverses it. The pill is as wide as its label needs, so
+                 the label is always on one line and the row keeps the ragged,
+                 proportional look it is drawn with — the longer term simply has the
+                 longer pill. The cost is that a row no longer fills its width, which
+                 is what the inset above is for. */
+              !alone && "min-w-[38%]",
             )}
           >
             {item}

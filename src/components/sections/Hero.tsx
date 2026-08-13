@@ -1,6 +1,6 @@
-import { cta, hero } from "@/lib/content";
+import { hero } from "@/lib/content";
 import { Backdrop } from "@/components/chrome/Backdrop";
-import { Button } from "@/components/ui/Button";
+import { WaitlistField } from "@/components/ui/WaitlistField";
 import { UmbraLogo } from "@/components/brandlogos/Umbra";
 import { MaskedLines } from "@/components/motion/MaskedLines";
 import { FadeIn } from "@/components/motion/FadeIn";
@@ -83,13 +83,19 @@ export function Hero() {
         </span>
       </FadeIn>
 
-      {/* Glass, because it is the one element sitting directly on the live
-          field and it can sample it. Raised and still: the page's only action
-          should look pressable without needing to move to prove it. */}
-      <div className="mt-10">
-        <Button href={cta.href} variant="glass">
-          {cta.label}
-        </Button>
+      {/* The page's one action, and it does not go anywhere — it opens into the
+          field it is asking for. Collapsed it is the glass button it always was:
+          the one element sitting directly on the live field, sampling it, raised
+          and still, because an action should look pressable without moving to
+          prove it. `WaitlistField` owns the three states. */}
+      {/* `w-full` is load-bearing rather than tidy. This section centres its
+          children with `items-center`, which makes a block child shrink-to-fit —
+          and a shrink-to-fit box gives the control below nothing real to measure
+          its own `max-width` against. Declaring the full content width here is
+          what lets the open field clamp to the gutters instead of running past
+          them. */}
+      <div className="mt-10 w-full">
+        <WaitlistField />
       </div>
     </section>
   );
