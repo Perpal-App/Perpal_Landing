@@ -36,14 +36,13 @@ import { Solana } from "@/components/brandlogos/Solana";
  * facets, with the shading translated into white at six opacities; the note in that file
  * explains the inversion.
  *
- * The exit and the page's arrival are two halves of one gesture and are deliberately not the
- * same length — the card clears in 720ms on `--ease-expo` while `main` takes 940ms to fade up
- * and settle its last 2rem, so the page comes up from underneath rather than being attached to
- * the card. That is the parallax; the timing is in `globals.css` and in `layout`, and the two
- * delays have to stay in step.
+ * The card is the only thing that moves. It clears upward in a second while the page fades in
+ * behind it, in place — an earlier version had the page rise 2rem into position against the
+ * card's exit, and however good the parallax was, the page appeared to have been scrolled by
+ * something the visitor had not done.
  *
  * The page is not merely covered during all this. It is unpainted and uninteractive until the
- * card starts to leave — see `site-rise` — because a site sitting fully rendered under an
+ * card starts to leave — see `site-reveal` — because a site sitting fully rendered under an
  * overlay can be scrolled and clicked through, and shows itself the moment anything about the
  * overlay is less than opaque. This is an opening, not a lid.
  */

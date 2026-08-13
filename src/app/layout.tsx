@@ -90,15 +90,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 
         <Nav />
 
-        {/* The page is not painted until the card starts to leave, and then it rises the last
-            2rem — taking longer over it than the card takes to clear, which is the parallax.
-            The site is genuinely after the opening rather than behind it. The timeline is
-            written out in `globals.css`; this delay is one line of it.
-
-            `main` is the only thing that moves, which is why `Nav` is its sibling rather than
-            its child: a transformed ancestor would make the fixed capsule scroll with the
-            page for as long as the animation held. */}
-        <main className="animate-[site-rise_1300ms_var(--ease-quart)_2200ms_both]">
+        {/* The page is not painted until the card starts to leave, and then it fades in where
+            it already is. It does not move: a page that travels upward on arrival reads as
+            having been scrolled, which is not something to show a visitor who has not touched
+            anything. The timeline is written out in `globals.css`; this delay is one line of
+            it. */}
+        <main className="animate-[site-reveal_600ms_var(--ease-swift)_2200ms_both]">
           {children}
         </main>
       </body>

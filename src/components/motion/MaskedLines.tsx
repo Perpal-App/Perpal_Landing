@@ -15,6 +15,8 @@ type MaskedLinesProps = {
   immediate?: boolean;
   /** Hold in the pre-animation state until released. */
   paused?: boolean;
+  /** Seconds to wait before playing. For copy that opens under the loading card. */
+  delay?: number;
   stagger?: number;
   duration?: number;
 };
@@ -38,6 +40,7 @@ export function MaskedLines({
   lineClassName,
   immediate = false,
   paused = false,
+  delay = 0,
   stagger = 0.085,
   duration = 1.05,
 }: MaskedLinesProps) {
@@ -64,6 +67,7 @@ export function MaskedLines({
       gsap.to(targets, {
         yPercent: 0,
         duration,
+        delay,
         stagger,
         ease: "expo.out",
         ...(immediate
@@ -75,7 +79,7 @@ export function MaskedLines({
     }, el);
 
     return () => ctx.revert();
-  }, [immediate, paused, stagger, duration]);
+  }, [immediate, paused, delay, stagger, duration]);
 
   return (
     <Tag ref={ref} className={cn(className)}>

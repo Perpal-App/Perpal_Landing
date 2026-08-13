@@ -630,15 +630,16 @@
      1.16s  Splash        ETH
      1.66s  Splash        SOL, which holds
      2.20s  Splash        the card leaves, 1.0s
-     2.20s  layout        `main` fades up and settles its last 2rem, 1.3s — longer on
-                          purpose, so the page rises from under the card rather than
-                          with it
-     3.15s  Nav           the capsule opens, 1.1s, once the card is off the top of the
-                          viewport — the card slides upward, so the strip the capsule
-                          sits in is the last thing it uncovers, and anything opening
-                          there before 3.2s opens for nobody
-     3.50s  Nav           the mark
-     3.62s  Nav           the action
+     2.20s  layout        `main` fades in, 0.6s. Opacity and nothing else — the page does
+                          not move at all
+     3.20s  —             the card is clear of the viewport
+     3.15s  Nav           the capsule fades in, 0.7s, as the card clears the top of the
+                          viewport — the card slides upward, so that strip is the last
+                          thing it uncovers, and anything arriving there before 3.2s
+                          arrives for nobody
+     3.25s  Hero          the headline rises line by line, 1.05s each, staggered, once the
+                          card has left — a GSAP tween rather than a keyframe, because it
+                          joins the `MaskedLines` system the rest of the page's type uses
 
    Each beat runs 720ms while the marks change every 500ms, so consecutive marks cross
    rather than cutting. That overlap is what lets the sequence be unhurried without being
@@ -646,22 +647,21 @@
    opening is still under two and a half seconds before the page starts arriving.
    ========================================================================== */
 
-/* Each beat: in, hold, out. Scale is small and the fade does the work, because a token
-   swelling on its way out would read as a slideshow transition rather than as a set of
-   markets being named. */
+/* Each beat is a fade, in and out, and nothing else. The marks were also scaling a little,
+   which on a set of four things in the same place read as a slideshow changing slides; with
+   only opacity moving, one mark becomes another. The ramps are wide — a quarter of the beat
+   each way — and eased by the animation's own timing function, so consecutive marks cross for
+   about 220ms rather than cutting. */
 @keyframes splash-beat {
   0% {
     opacity: 0;
-    transform: scale(0.9);
   }
-  22%,
-  74% {
+  26%,
+  70% {
     opacity: 1;
-    transform: none;
   }
   100% {
     opacity: 0;
-    transform: scale(1.06);
   }
 }
 
@@ -669,12 +669,10 @@
 @keyframes splash-hold {
   0% {
     opacity: 0;
-    transform: scale(0.9);
   }
-  22%,
+  26%,
   100% {
     opacity: 1;
-    transform: none;
   }
 }
 
@@ -693,62 +691,39 @@
 }
 
 /* The page, arriving after the card rather than waiting behind it.
-   The opacity is the point: with only a transform here the site was fully rendered under an
-   overlay for the whole opening, which is a different thing from an opening — you could scroll
-   it, click into it, and see it the moment anything about the card was less than opaque. It is
-   not painted until the card starts to leave, and then it comes up the last 2rem. */
-@keyframes site-rise {
+   Opacity only. It carried a 2rem rise as well — the parallax against the card's exit — and
+   that is removed: a page whose first act is to travel upward reads as having been scrolled,
+   and a visitor who has not touched anything should never be shown a scroll they did not
+   ask for. The card moves; the page does not.
+   The opacity is what makes this an opening rather than a lid. With only a transform here the
+   site sat fully rendered under an overlay for the whole sequence — scrollable, clickable, and
+   visible the moment anything about the card was less than opaque. */
+@keyframes site-reveal {
   from {
     opacity: 0;
-    transform: translateY(2rem);
     pointer-events: none;
   }
   to {
     opacity: 1;
-    transform: none;
     pointer-events: auto;
   }
 }
 
-/* The nav capsule's arrival: a short pill in the middle whose two ends run outward.
-   This was a `clip-path`, and a clip on an element carrying `backdrop-filter` is what put a
-   pale duplicate of the capsule on the page — a filtered backdrop does not reliably respect a
-   clip, so the blurred region went on being painted at the element's full box and read as a
-   white copy of the navbar sitting behind it. Nothing about the shape was wrong; the property
-   was.
-   So the box itself grows, and `max-width` rather than `width` because `width: auto` is not a
-   value an animation can interpolate to without `interpolate-size`, which is not everywhere
-   yet. The upper bound is a little above the capsule's real width so almost all of the range
-   is visible movement rather than easing into a number nothing reaches.
-   Paired with `backwards` at the call site, which is the load-bearing part: the `from` state
-   applies through the delay and *nothing* is held afterwards, so the capsule ends up with no
-   bound on its width at all. A held `max-width` would truncate the site's primary control the
-   day its label got longer. */
-@keyframes nav-open {
-  from {
-    /* Wide enough to read as a pill. The capsule is 52px tall, so anything under about
-       7rem is a lozenge and 3rem — where this started — is a circle: `rounded-full` on a
-       box that narrow is just a blob with a border. The opening frame has to be the same
-       object as the closing one, only shorter. */
-    max-width: 7rem;
-  }
-  to {
-    max-width: 20rem;
-  }
-}
-
-/* And what the opening reveals, arriving just behind each edge. One keyframe for both, with
-   the direction handed in: the mark comes in from the right and the action from the left, so
-   the two of them converge on their places as the clip opens outward. Coming in from the same
-   side would have one of them travelling against the edge that reveals it. */
-@keyframes nav-fill {
+/* The nav capsule's arrival, which is now a fade and nothing else.
+   It went through two shape animations before this — a `clip-path` that put a pale ghost of
+   the capsule on the page, because a filtered backdrop does not reliably respect a clip, and
+   then a growing `max-width` with the contents held inside `overflow-clip`. Both worked and
+   both were removed on instruction. What is left is the version that never had a problem: the
+   capsule crossfades in as the opening card clears, which is the only movement a fixed element
+   over a moving page actually needs.
+   `backwards` at the call site keeps it unpainted through the delay, and nothing is held
+   afterwards. */
+@keyframes nav-reveal {
   from {
     opacity: 0;
-    transform: translateX(var(--nav-from, -8px));
   }
   to {
     opacity: 1;
-    transform: none;
   }
 }
 

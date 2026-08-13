@@ -2,6 +2,7 @@ import { cta, hero } from "@/lib/content";
 import { Backdrop } from "@/components/chrome/Backdrop";
 import { Button } from "@/components/ui/Button";
 import { UmbraLogo } from "@/components/brandlogos/Umbra";
+import { MaskedLines } from "@/components/motion/MaskedLines";
 
 /**
  * Hero.
@@ -15,8 +16,12 @@ import { UmbraLogo } from "@/components/brandlogos/Umbra";
  * section its own stacking context, so the field's negative z-index stays
  * behind this content instead of falling behind the page itself.
  *
- * The headline and supporting copy render as plain HTML so the primary message
- * never depends on animation completing.
+ * The headline rises line by line out of its own clip; the copy under it does not
+ * move. One thing on this screen animates, and it is the thing the screen is for.
+ *
+ * Both are plain text in the markup either way. The headline's start state is a CSS
+ * rule that only exists when motion is allowed, and the document's `<noscript>` block
+ * restores it — so the message never depends on an animation completing.
  */
 export function Hero() {
   return (
@@ -26,13 +31,20 @@ export function Hero() {
     >
       <Backdrop />
 
-      <h1 className="font-display text-d1 font-normal text-ink">
-        {hero.headline.map((line) => (
-          <span key={line} className="block">
-            {line}
-          </span>
-        ))}
-      </h1>
+      {/* Each line rises out of its own clip. `immediate` rather than scroll-triggered,
+          because this is the top of the page and there is nothing to scroll to it — and
+          delayed until the opening card has left the viewport entirely, at 3.2s. Two earlier
+          numbers were wrong for instructive reasons: with no delay it finished arriving while
+          the card was still over the top of it, and at 2.6s it played against the page's own
+          fade and looked like nothing was happening. The number is one line of the timeline
+          in `globals.css`. */}
+      <MaskedLines
+        as="h1"
+        lines={hero.headline}
+        immediate
+        delay={3.25}
+        className="font-display text-d1 font-normal text-ink"
+      />
 
       {/* One clause per line, split on the copy's own full stop, so the lede
           never leaves an orphaned "and" hanging off the first row. Each clause
