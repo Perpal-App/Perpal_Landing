@@ -305,19 +305,57 @@ export const how = {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Title only, on instruction, until the questions are written.
- *
- * When they are, they land here rather than in the component, and the claim rules at
- * the top of this file are stricter in an answer than anywhere else on the page: an
- * answer is where a reader goes looking for the small print. In particular, whatever
- * is said about privacy has to hold the guide's line — the funding legs are the
- * private part, activity under the trading wallet stays visible to Pacifica and
- * linkable to that wallet — and no answer carries a fee, leverage or latency number,
- * because there is no honest one to give yet and an FAQ is where an invented one
+ * Six questions, and the claim rules bite harder here than anywhere else on the page: an
+ * answer is where a reader goes looking for the small print, and an invented number in one
  * would be believed.
+ *
+ * Every answer below follows the current product boundary. The live Pacifica catalog is
+ * implemented; lessons, backtesting and the assistant are named as planned features.
+ * The language stays at the user's level without exposing the infrastructure behind it.
+ *
+ * Two of them are worth reading before editing:
+ *
+ * "What does more privacy mean" still says what is not private. Money moving in and out
+ * gets added privacy; trades remain visible to the trading service.
+ *
+ * No answer carries a fee, leverage or latency figure. There is no honest one to give, which
+ * is also why there is no question about fees: a question whose answer has to be evasive is
+ * worse than no question.
  */
 export const faq = {
   title: "Frequently asked questions",
+  items: [
+    {
+      question: "What can I trade?",
+      answer:
+        "Explore the full range of perpetual markets Pacifica makes available on Solana. The list updates with the available market catalog instead of being limited to a few fixed assets.",
+    },
+    {
+      question: "How will the lessons work?",
+      answer:
+        "Short, Duolingo-style lessons will break perps into clear, manageable topics. Quick questions and market examples will help you practise each idea before moving on.",
+    },
+    {
+      question: "What is backtesting for?",
+      answer:
+        "Planned backtesting will show how a trading idea might have behaved across past market conditions. You will be able to review the results and assumptions before using real funds.",
+    },
+    {
+      question: "How can the AI assistant help?",
+      answer:
+        "The planned assistant will help explain markets, explore trade ideas and prepare an order for review. You remain responsible for checking and approving every trade.",
+    },
+    {
+      question: "What does more privacy mean?",
+      answer:
+        "Perpal is designed to add privacy when money moves into or out of trading. You stay in control of your funds, approvals and withdrawals throughout.",
+    },
+    {
+      question: "Does Perpal hold my funds?",
+      answer:
+        "No. You remain in control of your funds and trading decisions. Perpal does not take custody or approve trades on your behalf.",
+    },
+  ],
 } as const;
 
 /* -------------------------------------------------------------------------- */
@@ -370,10 +408,9 @@ export const access = {
  * The last word on the page, and the one that has to be exact.
  *
  * "Built for privacy" is a heading in the same posture the hero was given on
- * instruction, and the sentence under it is what earns it. Three facts, each one the
- * guide's own, in the order they happen to a reader: the keys never leave the
- * device, the funding legs route through Umbra, and the order is legible before it
- * is signed.
+ * instruction, and the sentence under it is what earns it. It stays at the user's
+ * altitude: control of funds, privacy when money moves in and out, and clear orders
+ * before approval.
  *
  * What is deliberately absent is any claim about data. Perpal is non-custodial, so
  * the honest privacy story is custody and funding, not a promise never to sell
@@ -383,7 +420,7 @@ export const access = {
  */
 export const privacy = {
   title: "Built for privacy",
-  body: "Your keys stay on your device. Funding routes privately through Umbra, and every order is shown in plain words before you sign it.",
+  body: "Your funds stay under your control. Perpal adds privacy when money moves in and out, while clear order details keep every decision yours.",
 } as const;
 
 /* -------------------------------------------------------------------------- */

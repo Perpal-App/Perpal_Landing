@@ -4,6 +4,7 @@ import "./globals.css";
 import { fontVariables } from "@/lib/fonts";
 import { site } from "@/lib/content";
 import { Nav } from "@/components/chrome/Nav";
+import { Splash } from "@/components/chrome/Splash";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 
 const title = "Perpal — A non-custodial perpetuals client for Solana";
@@ -85,8 +86,21 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Skip to content
         </a>
 
+        <Splash />
+
         <Nav />
-        <main>{children}</main>
+
+        {/* The page is not painted until the card starts to leave, and then it rises the last
+            2rem — taking longer over it than the card takes to clear, which is the parallax.
+            The site is genuinely after the opening rather than behind it. The timeline is
+            written out in `globals.css`; this delay is one line of it.
+
+            `main` is the only thing that moves, which is why `Nav` is its sibling rather than
+            its child: a transformed ancestor would make the fixed capsule scroll with the
+            page for as long as the animation held. */}
+        <main className="animate-[site-rise_1300ms_var(--ease-quart)_2200ms_both]">
+          {children}
+        </main>
       </body>
     </html>
   );
