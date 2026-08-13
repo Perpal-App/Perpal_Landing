@@ -218,8 +218,8 @@ export const how = {
        Named for what you do, in the order you do it. */
     steps: [
       "Fund through Umbra",
-      "Check the order",
-      "Sign on your device",
+      "Choose open or close",
+      "Review & confirm the order",
       "Withdraw through Umbra",
     ],
     /* Real alt text, because the screenshot is evidence rather than decoration: it is
@@ -229,26 +229,73 @@ export const how = {
       "The Perpal trade screen for BTC-USD, showing the mark price and the day's change above the 24-hour volume, open interest, oracle price and funding rate, a 15-minute candle chart below them, and long and short order buttons at the foot of the screen.",
   },
 
-  markets: {
-    /* Two verbs in the order they happen, which is the whole promise: the market is
-       readable before anything is signed, and the panel under this heading proves it
-       by being readable. */
-    title: "Browse first, sign later",
-    body: "Live Pacifica prices for BTC, ETH and SOL are open to look at, with nothing to sign first.",
+  /**
+   * The second panel, and it teaches rather than argues.
+   *
+   * It was a market you could look at, under the heading "Browse first, sign later" —
+   * true, and the panel demonstrated it by being readable. This is the same idea with
+   * something asked of the reader: the app's own pitch is that it teaches perps in short
+   * daily lessons beside live markets, so the panel is a lesson. The chart stops three
+   * quarters of the way along, you take a side, and the rest of it plays.
+   *
+   * Every claim here is one the page already makes. `hero` promises short daily lessons,
+   * `product.lessons` promises them beside live markets, and `long` / `short` are the
+   * product's own words for the two sides of a position. What the panel must not do is
+   * imply a live feed, which is why the body says the chart is a sample and the numbers
+   * are the only ones on this page that are invented.
+   */
+  lesson: {
+    /* Two verbs in the order you do them, which is exactly the panel. */
+    title: "Read the chart, take a side",
+    body: "The app teaches perps in short daily lessons. Here is one, on a sample chart.",
     panel: {
-      /* Three markets, because three is what the product trades — not because a row
-         of three looks tidy. */
-      tablist: "Sample markets",
       /* What the contract is, without the leverage the app's own screen shows beside
          it. A number there would be a claim; the word is a fact. */
       kind: "Perpetual",
-      window: "24h",
-      range: "24h range",
-      inspect: "Inspect the sample price series",
-      /* The panel draws a price series, so it has to say out loud that the series is
-         invented. Placed under the chart rather than beside the number, because a
-         reader who has started reading prices is looking at the chart. */
-      note: "Sample prices, drawn to show the shape of the screen. The live Pacifica markets are in the app.",
+      prompt: "Long or short from here?",
+      /* The two sides, named as the product names them. */
+      long: "Long",
+      short: "Short",
+      /* The session's own range, which is the same number whether it is measured over the
+         visible part or the whole series — every setup's withheld quarter is inside the
+         range its visible part already made, so neither figure gives anything away. */
+      high: "High",
+      low: "Low",
+      /* The verdict, built as two halves: whether the call was right, then what the
+         market did. Kept apart because the second half is true either way — a wrong
+         call still deserves the number that beat it. */
+      right: "Right.",
+      wrong: "Not this time.",
+      rose: "It closed higher, by",
+      fell: "It closed lower, by",
+      /* For a reader who cannot see the chart: what the drawing is withholding. */
+      hidden:
+        "The last quarter of the chart is hidden until you take a side.",
+      /* The three questions as a track, and what each one is worth. `exp` is the app's
+         own word for it. Read the note on this key before shipping: a number of exp on
+         the marketing page says the lessons in the app keep score, so the app has to. */
+      question: "Question",
+      exp: "exp",
+      xp: [50, 100, 150],
+      states: {
+        right: "correct",
+        wrong: "missed",
+        waiting: "not answered yet",
+      },
+      /* The closing card, indexed by score from nought to three. Each one says the number
+         plainly and then gives the reader somewhere to stand — a lesson that scolds is a
+         lesson nobody opens twice. */
+      reactions: [
+        "None this time. Reading a chart is a habit, not a knack.",
+        "One from three. The next set reads easier.",
+        "Two from three. One short of the set.",
+        "Three from three. That is the lesson.",
+      ],
+      /* The result, as two figures rather than a sentence about them. "Calls" because that
+         is what the reader made — a call on a market, not a guess at a quiz. */
+      calls: "calls right",
+      earned: "exp earned",
+      again: "Play again",
     },
   },
 } as const;

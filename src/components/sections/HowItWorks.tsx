@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { how } from "@/lib/content";
 import { Lift } from "@/components/motion/Lift";
-import { MarketPanel } from "@/components/sections/MarketPanel";
+import { LessonPanel } from "@/components/sections/LessonPanel";
+import { TradeFan } from "@/components/sections/TradeFan";
 
 /**
  * How it works: the mechanics, after the argument and before the reassurance.
@@ -10,10 +11,10 @@ import { MarketPanel } from "@/components/sections/MarketPanel";
  * exists; the question that follows both is what actually happens when you use it, and
  * it has to be answered before either the reassurance or the FAQ.
  *
- * Two plates, because there are two answers rather than two halves of one. The left
- * plate is a sequence — five things that happen in one order — and the right is an
- * invitation, which is not a sequence at all. A split inside a single plate would say
- * they were parts of a whole.
+ * Two plates, because there are two answers rather than two halves of one. The left plate
+ * is a sequence — four things that happen in one order — and the right is a lesson, which
+ * is not a sequence but a thing to do. A split inside a single plate would say they were
+ * parts of a whole.
  *
  * `tide` and `haze` tell them apart by field rather than by a heading you have to read
  * first, and the left one is `tide` for the reason that token was added: this section
@@ -26,7 +27,7 @@ import { MarketPanel } from "@/components/sections/MarketPanel";
  * like a status colour next to `long`. It stays a field here and nothing else.
  *
  * The plates are not equal — 6fr against 5fr, because the left one has a device standing
- * in it and the market panel is a heading, a line, three tabs and a chart.
+ * in it and the lesson panel is a heading, a line and a chart.
  *
  * That ratio is tight, and the number worth knowing before touching this: the left plate
  * needs 694px of content width for the device, the cables' run and a card as wide as
@@ -65,6 +66,10 @@ import { MarketPanel } from "@/components/sections/MarketPanel";
  * than as one line splitting, and the port itself is drawn: a short capsule on the
  * device's edge, because a cord has to come from somewhere.
  *
+ * The cords and their cards live in `TradeFan`. The argument for the drawing is here; the
+ * four numbers the drawing and the list have to agree on are there, with no hooks and no
+ * interaction — the one moving part is the light travelling down each cord.
+ *
  * `lilac-deep` at three pixels, and both halves of that are a change of mind. The line
  * was `ink/25` at one pixel, which was the right answer while it was structure — a
  * hairline in the ink family, deferring to the type. As a cable it is not structure, it
@@ -101,33 +106,9 @@ import { MarketPanel } from "@/components/sections/MarketPanel";
  *
  * Motion is the arrival `Lift` the panels around it use, at two depths — the copy
  * travels 20px and the artefacts 12, so the thread and the chart settle just after the
- * plates they sit on. Both plates take the same depths because they are peers. The
- * market panel's line drawing itself belongs to the same arrival and is described in
- * that file.
+ * plates they sit on. Both plates take the same depths because they are peers. The lesson
+ * panel's chart drawing itself belongs to the same arrival and is described in that file.
  */
-
-/* -- The cable rig ----------------------------------------------------------
-   Four numbers, and every one of them is written twice — once here, where the cables are
-   drawn, and once in a Tailwind class, where the list is laid out. They have to agree or
-   the cables arrive beside their nodes instead of at them, so any change happens in both
-   places:
-
-     ROW     the card's height          `sm:h-16`
-     PITCH   the gap between cards      `lg:gap-[4.5rem]`
-     REACH   the cable gutter           `lg:pl-18`
-     BRIDGE  the plate's column gap     `lg:gap-x-6`, which the cables cross to
-                                        reach the phone
-
-   The drawing is stretched rather than fitted (`preserveAspectRatio="none"` with a
-   non-scaling stroke), so a row that grew would still be met at its own middle as long
-   as ROW and PITCH keep their ratio. */
-const ROW = 64;
-const PITCH = 72;
-const REACH = 72;
-const BRIDGE = 24;
-
-/** How far apart the cables leave the device: a ribbon, not a single point. */
-const SPREAD = 10;
 
 /* The footer's dot field, brought up onto this plate: the same 10px pitch and the same
    white specks, so the two surfaces are wearing one texture rather than two.
@@ -149,36 +130,8 @@ const DOTS =
 const DOT_MASK =
   "linear-gradient(to left, #000 0%, rgba(0,0,0,0.5) 16%, rgba(0,0,0,0) 45%)";
 
-/**
- * The cables, as cubic curves from a port on the phone's edge to each node.
- *
- * Both handles sit at half the run, so every cable leaves the device horizontally and
- * arrives horizontally — the shape node editors use for a patch cord, and the reason
- * this reads as something plugged in rather than as a flowchart's elbow. Each one starts
- * at its own height inside a 30px port, so the four do not pile into one lump where they
- * meet the device, and then separate on their way out.
- */
-function rig(count: number) {
-  const height = count * ROW + (count - 1) * PITCH;
-  const width = REACH + BRIDGE;
-  const middle = height / 2;
-  const offset = ((count - 1) / 2) * SPREAD;
-
-  return {
-    height,
-    width,
-    port: `M0 ${middle - offset}V${middle + offset}`,
-    cables: Array.from({ length: count }, (_, index) => {
-      const from = middle - offset + index * SPREAD;
-      const to = index * (ROW + PITCH) + ROW / 2;
-      return `M0 ${from}C${width / 2} ${from} ${width / 2} ${to} ${width} ${to}`;
-    }),
-  };
-}
-
 export function HowItWorks() {
-  const { trade, markets } = how;
-  const cable = rig(trade.steps.length);
+  const { trade, lesson } = how;
 
   return (
     <section
@@ -241,86 +194,34 @@ export function HowItWorks() {
                 keep company with and a tight stack would sit in the middle of it like a
                 paragraph. Tight below that, where the cables are gone and this is a
                 list. */}
-            <ol className="relative mt-10 flex flex-col gap-3 lg:mt-0 lg:gap-[4.5rem] lg:pl-18">
-              <svg
-                aria-hidden
-                viewBox={`0 0 ${cable.width} ${cable.height}`}
-                preserveAspectRatio="none"
-                fill="none"
-                stroke="var(--color-lilac-deep)"
-                strokeWidth={3}
-                strokeLinecap="round"
-                style={{ left: -BRIDGE, width: cable.width }}
-                className="pointer-events-none absolute inset-y-0 hidden overflow-visible lg:block"
-              >
-                {/* The port on the device, and the four cords out of it. */}
-                <path d={cable.port} vectorEffect="non-scaling-stroke" />
-                {cable.cables.map((path) => (
-                  <path key={path} d={path} vectorEffect="non-scaling-stroke" />
-                ))}
-              </svg>
-
-              {trade.steps.map((step, index) => (
-                <li key={step} className="flex items-center">
-                  {/* `paper`, because the plate is tinted: a card has to be a step away
-                      from its ground, and `surface` on `tide` is two pale fields 1.16:1
-                      apart.
-
-                      `w-fit`, so a node is the size of its own name. Stretched to the
-                      column it held 300px of label in 760px of card, which is a row and
-                      not a node. The height is fixed and the label cannot wrap, because
-                      the cables are drawn against this row height. */}
-                  <div className="flex h-14 w-fit shrink-0 items-center gap-3 rounded-2xl bg-paper px-4 sm:h-16 sm:px-5">
-                    {/* Hidden from assistive technology: the `<ol>` already counts. Boxed
-                        to a fixed width so a `1` and a `4` start their labels at the same
-                        place. */}
-                    <span
-                      aria-hidden
-                      className="w-4 font-ui text-sm font-semibold text-muted sm:text-base"
-                    >
-                      {index + 1}
-                    </span>
-                    <span className="font-ui text-base leading-none font-medium whitespace-nowrap text-ink sm:text-lg lg:text-xl">
-                      {step}
-                    </span>
-                  </div>
-
-                  {/* The cord carrying on out of the card, to the plate's own edge and no
-                      further. A flex child, so its length is whatever the plate has left
-                      after the card and no width is written down — which is also why each
-                      one ends flush while starting at a different place. The negative
-                      margin is the plate's padding, given back so the cord reaches the
-                      edge that is painted rather than the one that is measured. */}
-                  <span
-                    aria-hidden
-                    className="hidden h-[3px] flex-1 rounded-full bg-lilac-deep lg:-mr-9 lg:block"
-                  />
-                </li>
-              ))}
-            </ol>
+            <TradeFan steps={trade.steps} />
           </div>
         </div>
 
         {/* The market. Column, because the panel inside it takes whatever height is
             left once the copy has had its share — which is how this plate matches the
             thread beside it without a fixed height anywhere. */}
+        {/* Back on `haze` pending a field of its own. `lilac` and `sky` are `Product`'s,
+            `haze` is `About`'s, `tide` is the plate across the gap, and the remaining pale
+            steps are within 1.1:1 of each other — so a field unique to this section means
+            a new token, which is a decision to take rather than assume. */}
         <div className="flex flex-col rounded-2xl bg-haze px-7 py-9 sm:px-9 sm:py-11">
           <h2
             data-lift="20"
             className="panel-title text-ink [--panel-title-size:var(--text-3xl)]"
           >
-            {markets.title}
+            {lesson.title}
           </h2>
 
           {/* Matched to the panel beside it: same step, same tone. One sentence, so it
               keeps a measure instead of running the width — this plate has the market
               below it filling that width already. */}
           <p data-lift="20" className="mt-5 max-w-[54ch] text-lead text-ink/80">
-            {markets.body}
+            {lesson.body}
           </p>
 
           <div data-lift="12" className="mt-10 flex flex-1 flex-col">
-            <MarketPanel />
+            <LessonPanel />
           </div>
         </div>
       </Lift>

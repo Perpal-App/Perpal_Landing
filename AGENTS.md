@@ -54,6 +54,12 @@ when the work is finished, not when it begins.
 - **Use one orchestrated motion idea per screen.** Feedback lasts 150–250ms;
   transitions last 300–500ms. Enter with ease-out, leave with ease-in, animate
   only transform and opacity, and preserve meaning under reduced motion.
+- **Keep every surface light.** This site does not use a dark plate, card or
+  panel. `ink` and `dusk` are type colours; the phone renders are the only
+  near-black objects on the page. Separation between a white card and its plate
+  comes from choosing a plate with real colour in it — `tide`, `lilac`, `sky` —
+  because `paper-dim`, `surface`, `surface-raised` and `haze` all sit within
+  1.1:1 of each other.
 - **Treat accessibility as a ship blocker.** Body copy needs 4.5:1 contrast,
   keyboard focus must remain visible, semantic HTML comes before ARIA, touch
   targets are at least 44px, horizontal scrolling is forbidden, and mobile
@@ -147,8 +153,11 @@ The site uses exactly three font families. Do not add Google Fonts imports,
 
 Run a command only when its output can change the next action.
 
-- Do not repeat a build, typecheck, or lint that already passed unless a later
-  change could affect its result.
+- Do not run the build, typecheck, or lint at all. The editor and the dev server
+  already report those errors to the user. Reason about whether the change
+  compiles instead.
+- Do not write scratch scripts or throwaway files to work something out. Derive
+  the value in the edit and record the working in a comment.
 - Do not verify the same fact twice or confirm a tool call that already reported
   success.
 - Do not reread a file or search again for information already known.
@@ -157,14 +166,26 @@ Run a command only when its output can change the next action.
   on their output.
 - Do not print an edited file merely to inspect the edit you just made.
 
-Read each file you intend to change once. At the end, run no more than one
-verification pass, and only when the change could plausibly break the build.
-Skip verification for copy, comments, and styling values. Then stop.
+Read each file you intend to change once, make the change, and stop. Run a
+command only when the user asks for one, or when the change's correctness truly
+cannot be reasoned about—and say which it is first.
+
+## Ask instead of assuming
+
+When an instruction could reasonably mean two different things—which element is
+meant, how far the change reaches, whether to replace or add—ask one short
+question and wait. Do not pick a reading and build it. Detail the user has left
+open (a spacing value, a choice between equal tokens) may still be decided, once,
+in a stated and reversible way.
+
+Change what was asked for and nothing adjacent. If something adjacent looks
+wrong, say so in one line afterwards.
 
 ## Completion response
 
 When the work is complete, reply with exactly `done`. Do not include a summary,
-file list, bullet list, or explanation; the diff is the report.
+file list, bullet list, or explanation; the diff is the report. When an exception
+below applies, keep it to a sentence or two.
 
 Use more than `done` only when you must:
 

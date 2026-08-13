@@ -277,6 +277,24 @@
     inset 0 -10px 20px -12px rgba(104, 68, 184, 0.3),
     0 14px 30px -16px rgba(104, 68, 184, 0.45);
 
+  /* And the third is the lesson's two choices, which have to look pressable to a
+     reader who has never seen that panel before.
+
+     A solid bottom edge rather than a soft drop, and that is the whole idea: a hard
+     3px edge that collapses when the button is pressed is the one shadow
+     construction that reads as a physical key rather than as a card floating over
+     the page. The hairline highlight on the top edge is the light landing on it, the
+     same layer `bulge` opens with.
+
+     Cast in `ink` rather than in a hue, because this one has to sit under three
+     different fills — the pale blue the button waits in, and the `long` or `short` it
+     resolves to once the answer is in. A shadow tinted to any of them would be wrong
+     under the other two. */
+  --shadow-raise:
+    inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    0 3px 0 rgba(15, 23, 32, 0.16),
+    0 7px 14px -8px rgba(15, 23, 32, 0.4);
+
   /* -- Layout ---------------------------------------------------------- */
   --spacing-gutter: clamp(1.25rem, 4.5vw, 5rem);
   --shell-max: 1680px;
@@ -569,6 +587,120 @@
    Keyframes
    Transform / opacity only, so each one stays on the compositor.
    ========================================================================== */
+
+/* The lesson mascot's arrival. Paired with `--ease-snap`, whose slight overshoot is what
+   makes it read as handed over rather than swapped — which is the whole reason a lesson
+   has a mascot and a chart does not. Transform and opacity only, so it stays on the
+   compositor, and it replays by remounting rather than by a class toggle. */
+@keyframes mascot-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.72) translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Light running down a cord in the `How it works` fan. The dash is normalised against
+   `pathLength: 1`, so one full period of travel is an offset of 0 to 1 whatever length the
+   curve happens to be — and the four cords, which are all different lengths, keep the same
+   speed.
+
+   `linear`, because this is the one continuously moving thing in the section and continuous
+   motion that eases reads as breathing rather than as travel. It fades in and out at both
+   ends of the cycle so the reduced-motion collapse — which lands on the final frame — leaves
+   nothing on the wire. */
+@keyframes cable-beam {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+  14% {
+    opacity: 1;
+  }
+  86% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 1;
+  }
+}
+
+/* A question closing on the lesson's track. Two keyframes rather than one, because the
+   capsule and the mark inside it are not the same gesture: the capsule arrives, and then
+   the tick is written into it. Both replay by remounting — the element is keyed on its own
+   state — and both are safe under the reduced-motion collapse, which lands them on a
+   settled capsule with a finished tick. */
+@keyframes node-pop {
+  from {
+    opacity: 0.4;
+    transform: scale(0.55);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes check-draw {
+  from {
+    stroke-dashoffset: 12;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* The lesson's closing burst. Each piece carries its own `--confetti-spin`, so fourteen
+   elements share one keyframe and still tumble differently. It ends off the bottom and at
+   zero alpha, which is also what makes it safe under reduced motion: that block collapses
+   an animation to its final frame, and the correct reduced-motion state for a celebration
+   is that it never arrives. */
+@keyframes confetti-fall {
+  from {
+    opacity: 1;
+    transform: translate3d(0, -1.5rem, 0) rotate(0deg);
+  }
+  to {
+    opacity: 0;
+    /* Absolute units, not percentages. A percentage in `translate` resolves against the
+       element's own box, so an 8px piece told to fall 340% moved 27px and the burst never
+       left the top edge. The distance belongs to the card, so it is written in rem and
+       varied per piece. */
+    transform: translate3d(
+        var(--confetti-drift, 0),
+        var(--confetti-drop, 22rem),
+        0
+      )
+      rotate(var(--confetti-spin, 360deg));
+  }
+}
+
+/* One tear, falling and welling up again. Both ends of the cycle are the resting state on
+   purpose: the reduced-motion block collapses every animation to its final frame, and a
+   cycle that ended on the fade would leave the mascot's mood with nothing to show. */
+@keyframes mascot-tear {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  46% {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  47%,
+  62% {
+    opacity: 0;
+    transform: none;
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
 
 @keyframes pulse-dot {
   0%,
