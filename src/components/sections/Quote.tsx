@@ -1,4 +1,5 @@
 import { quote } from "@/lib/content";
+import { Lift } from "@/components/motion/Lift";
 import { Reveal } from "@/components/motion/Reveal";
 
 /**
@@ -123,8 +124,13 @@ function Mark({ closing = false }: { closing?: boolean }) {
 
 export function Quote() {
   return (
-    <section className="relative mt-2.5 px-2.5 sm:mt-3 sm:px-3">
-      <div className="relative isolate overflow-hidden rounded-2xl border border-line-strong bg-paper-dim px-6 py-14 text-center sm:px-14 sm:py-20">
+    <section data-parallax className="relative mt-2.5 px-2.5 sm:mt-3 sm:px-3">
+      {/* The plate is the `Lift` root, so the quotation settles on arrival like
+          every other panel. Only the quotation moves — the grid, the border and
+          the four corner dots stay put, because they are what the plate is
+          measured against and a specimen card whose registration marks drift is
+          not registered to anything. */}
+      <Lift className="relative isolate overflow-hidden rounded-2xl border border-line-strong bg-paper-dim px-6 py-14 text-center sm:px-14 sm:py-20">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 -z-10 opacity-60"
@@ -169,7 +175,7 @@ export function Quote() {
             passed for `scrub` — tracking the scroll exactly is the default now, and
             the reasoning for that lives on the prop. */}
         <Reveal unit="words" start="top 90%" end="center 40%">
-          <blockquote className="text-d2">
+          <blockquote data-lift="12" className="text-d2">
             <p className="display-bold font-display text-ink">
               {quote.lines.map((line, i) => {
                 const opens = i === 0;
@@ -196,7 +202,7 @@ export function Quote() {
             </p>
           </blockquote>
         </Reveal>
-      </div>
+      </Lift>
     </section>
   );
 }

@@ -95,7 +95,11 @@ const DOT_MASK =
 
 export function Privacy() {
   return (
-    <section id="privacy" className="relative mt-2.5 px-2.5 sm:mt-3 sm:px-3">
+    <section
+      id="privacy"
+      data-parallax
+      className="relative mt-2.5 px-2.5 sm:mt-3 sm:px-3"
+    >
       {/* Taller than the panels above it: this one has to hold an emblem at a size
           that reads, with the copy inside it. The height steps three times rather
           than twice because the emblem's width is derived from it while the heading's

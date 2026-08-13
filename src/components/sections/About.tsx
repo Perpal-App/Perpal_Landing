@@ -1,5 +1,6 @@
 import { about } from "@/lib/content";
 import { Mark } from "@/components/ui/Logo";
+import { Lift } from "@/components/motion/Lift";
 import { Reveal } from "@/components/motion/Reveal";
 import { AboutMesh } from "@/components/sections/AboutMesh";
 
@@ -47,7 +48,7 @@ import { AboutMesh } from "@/components/sections/AboutMesh";
  */
 export function About() {
   return (
-    <section id="about" className="relative px-2.5 sm:px-3">
+    <section id="about" data-parallax className="relative px-2.5 sm:px-3">
       {/* `overflow-hidden` is what lets an object in the mesh run off the panel
           and be cut by its radius. */}
       {/* Tall for the amount of copy it holds, on purpose: the height is what
@@ -66,10 +67,18 @@ export function About() {
 
         {/* `relative` is load-bearing: the mesh is positioned, and a positioned
             element paints over static in-flow content no matter what order the
-            DOM is in. This puts the reading column back on top. */}
-        <div className="relative shell">
+            DOM is in. This puts the reading column back on top.
+
+            `Lift` rather than a plain div, so this column settles on arrival at
+            the same two depths every other panel uses. It wraps the column and
+            not the plate: `AboutMesh` triggers on `root.parentElement`, so the
+            mesh has to stay a direct child of the plate — and the mesh should not
+            be lifting anyway, since it is the layer the column reads against. */}
+        <Lift className="relative shell">
           <Reveal unit="words" className="mx-auto max-w-3xl text-center">
-            <h2 className="section-title text-ink">{about.title}</h2>
+            <h2 className="section-title text-ink" data-lift="20">
+              {about.title}
+            </h2>
 
             {/* `ink`, not `muted`, and a step up the scale: this is the section
                 speaking, and it is the only prose on the page that has to hold a
@@ -79,7 +88,10 @@ export function About() {
                 works per word, so it does not need the copy to declare
                 where lines end — which leaves the browser free to even out the
                 rag at whatever width it is actually given. */}
-            <div className="mx-auto mt-8 max-w-[44ch] space-y-6 text-lead-lg text-ink">
+            <div
+              data-lift="12"
+              className="mx-auto mt-8 max-w-[44ch] space-y-6 text-lead-lg text-ink"
+            >
               {about.body.map((paragraph) => (
                 <p key={paragraph} className="text-balance" data-reveal-text>
                   {paragraph}
@@ -103,7 +115,7 @@ export function About() {
               <span className="block">{about.scope.where}</span>
             </p>
           </Reveal>
-        </div>
+        </Lift>
       </div>
     </section>
   );

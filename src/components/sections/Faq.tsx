@@ -1,5 +1,6 @@
 import { faq } from "@/lib/content";
 import { Lift } from "@/components/motion/Lift";
+import { StaggerReveal } from "@/components/motion/StaggerReveal";
 
 /**
  * FAQ: the small print, given the same care as the promise.
@@ -39,13 +40,17 @@ import { Lift } from "@/components/motion/Lift";
  * — the reference this was drawn from lets its answers run the whole row, and that is the one
  * place the reference loses to the reading measure.
  *
- * One motion idea beyond that, the same one its neighbours use: `Lift` on the panel's own
- * arrival, at the two depths the other panels use.
+ * Two motion ideas beyond that, and they are the same idea at two scales: `Lift` on the
+ * panel's own arrival, at the two depths the other panels use, and the rows arriving one
+ * at a time inside it. The list is the one place on the page where a stagger says something
+ * true — six questions is a set the reader is going to scan rather than read, and letting
+ * them land in order is what makes it read as a list rather than as a wall. It plays once.
  */
 export function Faq() {
   return (
     <section
       id="faq"
+      data-parallax
       className="relative mt-2.5 px-2.5 sm:mt-3 sm:px-3"
       /* Clears the fixed nav when an anchor jump lands here. */
       style={{ scrollMarginTop: "6rem" }}
@@ -55,10 +60,22 @@ export function Faq() {
           {faq.title}
         </h2>
 
-        <div data-lift="12" className="mt-10 flex flex-col gap-2.5 sm:mt-12">
+        {/* The rows arrive one at a time as the list does. `lift` is forwarded
+            rather than written as an attribute because this element is also one of
+            `Lift`'s targets, and the stagger deliberately does not touch it: GSAP
+            already owns this container's transform for the whole of the panel's
+            arrival, so the rows are the free surface and the container is not. */}
+        <StaggerReveal
+          lift={12}
+          className="mt-10 flex flex-col gap-2.5 sm:mt-12"
+        >
           {faq.items.map((item) => (
             <details
               key={item.question}
+              /* The start state is the shared `[data-reveal]` rule, so the row is
+                 hidden from the first paint, is never hidden at all under reduced
+                 motion, and is restored by the document's `<noscript>` block. */
+              data-reveal
               /* `group`, so the summary's marker can read the open state without a class
                  being toggled on it by anything. */
               className="group rounded-2xl bg-paper px-6 py-5 ring-1 ring-line-strong/60 sm:px-7"
@@ -85,12 +102,29 @@ export function Faq() {
                 </span>
               </summary>
 
-              <p className="mt-3 max-w-[78ch] text-sm leading-relaxed text-muted transition-[opacity,translate] duration-300 ease-swift starting:translate-y-1 starting:opacity-0">
+              {/* The answer arrives and leaves the same way, and the closed state is
+                  what buys the second half of that.
+
+                  `@starting-style` alone only ever animated the opening. It supplies a
+                  before-change style for an element that is appearing, which is
+                  necessary here because `content-visibility` means the paragraph is not
+                  rendered at all until the row opens — but it says nothing about
+                  leaving. So on close the paragraph sat at full opacity while the row
+                  collapsed underneath it and then vanished the instant
+                  `content-visibility` flipped at the end of the 320ms, which reads as
+                  the row hanging open and then snapping shut.
+
+                  `opacity-0 translate-y-1` as the resting state gives the transition
+                  somewhere to go back to, so closing now fades over 300ms against the
+                  320ms collapse. The `starting:` pair stays, and is not redundant with
+                  it: without those the paragraph's first rendered style would already
+                  be the open one and the opening would not animate at all. */}
+              <p className="mt-3 max-w-[78ch] translate-y-1 text-sm leading-relaxed text-muted opacity-0 transition-[opacity,translate] duration-300 ease-swift group-open:translate-y-0 group-open:opacity-100 starting:translate-y-1 starting:opacity-0">
                 {item.answer}
               </p>
             </details>
           ))}
-        </div>
+        </StaggerReveal>
       </Lift>
     </section>
   );

@@ -177,7 +177,10 @@ const DOT_MASK =
 
 export function Footer() {
   return (
-    <footer className="mt-2.5 mb-2.5 px-2.5 sm:mt-3 sm:mb-3 sm:px-3">
+    <footer
+      data-parallax
+      className="mt-2.5 mb-2.5 px-2.5 sm:mt-3 sm:mb-3 sm:px-3"
+    >
       <Lift>
         <div
           data-lift="96"

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { product } from "@/lib/content";
 import { PillCloud } from "@/components/ui/PillCloud";
+import { Lift } from "@/components/motion/Lift";
 import { Parallax } from "@/components/motion/Parallax";
 
 /**
@@ -43,7 +44,11 @@ import { Parallax } from "@/components/motion/Parallax";
  */
 export function Product() {
   return (
-    <section id="product" className="relative mt-2.5 px-2.5 sm:mt-3 sm:px-3">
+    <section
+      id="product"
+      data-parallax
+      className="relative mt-2.5 px-2.5 sm:mt-3 sm:px-3"
+    >
       {/* The gap between panels matches the matte around them, so the white
           between the two is the same white as the page edge.
 
@@ -52,7 +57,12 @@ export function Product() {
           — well below the panel's content width at every size from the `lg`
           breakpoint up — so the wrap points are fixed by the caps, not by the
           column. The right panel only widens, which its own caps absorb. */}
-      <div className="grid gap-2.5 sm:gap-3 lg:grid-cols-[38fr_62fr]">
+      {/* `Lift` on the row rather than on each panel, so the heading and copy in
+          both panels settle on one clock — two Lifts side by side would measure
+          two different heights and drift out of step. The phone and the pills are
+          left out of it: both already own a scrubbed transform of their own, and a
+          second one on the same element would fight it. */}
+      <Lift className="grid gap-2.5 sm:gap-3 lg:grid-cols-[38fr_62fr]">
         {/* Evidence. `overflow-hidden` crops both the phone and the disc;
             `isolate` gives the panel its own stacking context, so the disc's
             negative z-index stays inside it — above the fill, below everything
@@ -85,7 +95,10 @@ export function Product() {
             aria-hidden
             className="pointer-events-none absolute -bottom-[30%] -left-[28%] -z-10 aspect-[7/6] w-[116%] rounded-[50%] bg-lilac-deep"
           />
-          <h2 className="panel-title text-ink sm:whitespace-nowrap">
+          <h2
+            data-lift="20"
+            className="panel-title text-ink sm:whitespace-nowrap"
+          >
             {product.app.title}
           </h2>
           {/* `ink` at 80% rather than `muted`, which reads at 3.9:1 on this fill;
@@ -98,7 +111,10 @@ export function Product() {
               one gets much wider. `text-pretty` for the rag: the problem is the
               orphan on the last line, not uneven line lengths, which is what
               `text-balance` would go after. */}
-          <p className="mt-5 max-w-[42ch] text-pretty text-base leading-relaxed text-ink/80">
+          <p
+            data-lift="12"
+            className="mt-5 max-w-[42ch] text-pretty text-base leading-relaxed text-ink/80"
+          >
             {product.app.body}
           </p>
 
@@ -158,7 +174,10 @@ export function Product() {
 
               Under a 768px panel the fit lifts, the title wraps, and `text-balance`
               splits it evenly rather than leaving one word stranded. */}
-          <h2 className="panel-title panel-title-fit text-balance text-ink">
+          <h2
+            data-lift="20"
+            className="panel-title panel-title-fit text-balance text-ink"
+          >
             {product.lessons.title}
           </h2>
           {/* Kept at the smaller body step used by the panel beside it. `ink` at 80% rather than
@@ -169,7 +188,10 @@ export function Product() {
               measure any more, it is there as a ceiling: past roughly 90 characters
               a line stops being scannable, and without it an ultrawide window would
               keep stretching this. */}
-          <p className="mt-5 max-w-[88ch] text-pretty text-base leading-relaxed text-ink/80">
+          <p
+            data-lift="12"
+            className="mt-5 max-w-[88ch] text-pretty text-base leading-relaxed text-ink/80"
+          >
             {product.lessons.body}
           </p>
 
@@ -188,7 +210,7 @@ export function Product() {
             className="mt-auto gap-5 pt-12 sm:gap-6"
           />
         </div>
-      </div>
+      </Lift>
     </section>
   );
 }

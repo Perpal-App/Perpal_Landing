@@ -314,6 +314,10 @@
   html {
     /* Lenis owns scrolling. A native smooth-scroll here would fight it. */
     scroll-behavior: auto;
+    /* FAQ rows change document height while closing. Native scroll anchoring
+       would hold a lower card in place while Lenis keeps a different target,
+       then release it in a visible catch-up after the collapse. */
+    overflow-anchor: none;
     /* The frame colour the backdrop's inset leaves showing. It lives on <html>,
        not <body>, for the reason described on `body` below. */
     background-color: var(--color-paper);
@@ -368,21 +372,8 @@
     text-wrap: balance;
   }
 
-  /* Disclosure rows open and close on a height.
-     The FAQ is native `<details>` and stays that way — the browser owns the focus,
-     the keyboard and the announcement — so the animation has to come from the
-     element rather than from a script measuring it. `::details-content` is that
-     element, and it is the only route that animates the *closing* too: the content
-     stops being rendered at the end of the transition rather than at the start,
-     which is what `allow-discrete` buys.
-
-     `interpolate-size` is what makes `auto` a value a transition can reach. It is
-     set on `details` rather than on the document, so nothing else on the page
-     inherits a licence to interpolate keywords.
-
-     Not supported everywhere, and that is fine: where it is missing the row still
-     opens, just immediately, and the answer's own `@starting-style` fade still
-     runs. Nothing is lost but the easing. */
+  /* Native `<details>` keeps the disclosure semantics. Closing is intentionally
+     instant: delaying content removal made the cards below pause before moving up. */
   details {
     interpolate-size: allow-keywords;
   }
@@ -390,13 +381,14 @@
   details::details-content {
     block-size: 0;
     overflow: clip;
-    transition:
-      block-size 320ms var(--ease-swift),
-      content-visibility 320ms allow-discrete;
+    transition: none;
   }
 
   details[open]::details-content {
     block-size: auto;
+    transition:
+      block-size 250ms var(--ease-swift),
+      content-visibility 250ms allow-discrete;
   }
 
   p {
@@ -620,9 +612,54 @@
     opacity: 0;
   }
 
+  /* A hidden reveal target must never be able to swallow the focus ring.
+     `FadeIn` in the hero plays on load, but the FAQ's rows wait for scroll, and a
+     keyboard user tabbing down the page can reach a row a frame before its
+     trigger fires. Focus inside makes it visible immediately, whatever the
+     animation thinks. `!important` because it has to beat the inline opacity GSAP
+     is writing. */
+  [data-reveal]:focus-within {
+    opacity: 1 !important;
+  }
+
   /* Lines inside a masked heading start below their own clip edge. */
   .line-mask > [data-line] {
     transform: translateY(115%);
+  }
+
+  /* The section parallax's room to move.
+
+     Not a start state like the two above — it is the space the drift happens in.
+     It is here because it belongs to the motion and must leave with it: the
+     section box stays exactly where the flow puts it and only the plate inside
+     drifts, so this padding is what stops a plate closing the matte against its
+     neighbour. `SectionParallax` carries the arithmetic; the short version is
+     that the budget equals the amplitude, which puts the floor of the gap at the
+     10px matte the page already has and lets it open from there.
+
+     0.625rem is 10px, and it is that number three times over — the amplitude, the
+     budget, and the matte between plates. Utilities and effects cannot read each
+     other, so changing the drift means changing `AMPLITUDE` in
+     `SectionParallax.tsx` and this line together.
+
+     With motion off this query never matches, no plate ever moves, and the page
+     is the layout it was before any of it — same matte, same heights. */
+  [data-parallax] {
+    padding-block: 0.625rem;
+  }
+
+  /* And the state each plate arrives from.
+
+     On the section's children rather than on the section, for the same reason the
+     drift is: the section box has to stay exactly where the flow puts it. A plate
+     is the largest thing on this page that animates, so this is also the one
+     start state whose failure would be total — `SectionMotion` not mounting would
+     leave the page blank below the hero. The two guards against that are the same
+     ones the rest of the reveal system uses and are worth naming: this query does
+     not match under reduced motion, and the `<noscript>` block in the document
+     restores it. */
+  [data-parallax] > * {
+    opacity: 0;
   }
 }
 
@@ -897,9 +934,15 @@
     scroll-behavior: auto !important;
   }
 
-  /* Anything the motion layer would have revealed must be visible. */
+  /* Anything the motion layer would have revealed must be visible.
+
+     The plate selector is belt and braces — its hidden state lives in a
+     `no-preference` query that cannot match here — but it also covers the one case
+     the query does not: a reader who turns reduced motion on mid-session, after
+     `SectionMotion` has already written inline values and will not re-run. */
   [data-reveal],
-  [data-line] {
+  [data-line],
+  [data-parallax] > * {
     opacity: 1 !important;
     transform: none !important;
   }

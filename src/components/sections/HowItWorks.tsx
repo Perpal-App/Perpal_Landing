@@ -136,6 +136,7 @@ export function HowItWorks() {
   return (
     <section
       id="how"
+      data-parallax
       className="relative mt-2.5 px-2.5 sm:mt-3 sm:px-3"
       /* Clears the fixed nav when an anchor jump lands here. */
       style={{ scrollMarginTop: "6rem" }}

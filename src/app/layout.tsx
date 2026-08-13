@@ -61,7 +61,7 @@ export const viewport: Viewport = {
  * animation claims them, which means the page would stay blank if the
  * animations never run. This puts them back for anyone without JavaScript.
  */
-const NO_JS_FALLBACK = `[data-reveal],[data-line]{opacity:1!important;transform:none!important}html.${OPENING_ACTIVE_CLASS}{overflow:auto!important}html.${OPENING_ACTIVE_CLASS} body{overflow:auto!important;touch-action:auto!important}`;
+const NO_JS_FALLBACK = `[data-reveal],[data-line],[data-parallax]>*{opacity:1!important;transform:none!important}html.${OPENING_ACTIVE_CLASS}{overflow:auto!important}html.${OPENING_ACTIVE_CLASS} body{overflow:auto!important;touch-action:auto!important}`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

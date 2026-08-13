@@ -7,6 +7,7 @@ import { Faq } from "@/components/sections/Faq";
 import { Access } from "@/components/sections/Access";
 import { Quote } from "@/components/sections/Quote";
 import { Footer } from "@/components/chrome/Footer";
+import { SectionMotion } from "@/components/motion/SectionMotion";
 
 export default function Home() {
   return (
@@ -28,6 +29,13 @@ export default function Home() {
           remembered, then the plate it ends on. */}
       <Quote />
       <Footer />
+
+      {/* Attaches the arrival and the drift to every `data-parallax` section
+          above. One client boundary for the whole page, so none of the sections
+          needs to become a client component to move. The hero is deliberately not
+          marked: it owns the opening sequence and the gradient field, and it is
+          the one panel already on screen before there is any scroll to read. */}
+      <SectionMotion />
     </>
   );
 }
