@@ -30,10 +30,12 @@ import { handleAnchorClick } from "@/components/motion/scroll";
  * behind the card rather than sitting there waiting, and nothing is held afterwards.
  * Under reduced motion the animation collapses and the capsule is simply there.
  *
- * Those delays start at 3.15s, not 2.3s. The opening card slides upward, so the strip
- * this sits in is the last thing it uncovers — anything opening here before 3.2s opens
- * for nobody, which is exactly what the earlier timing did. The whole timeline is
- * written out in `globals.css`; three of its lines are in this file.
+ * The delay is 2.85s, not 2.3s. The opening card slides upward, so the strip this sits in
+ * is the last thing it uncovers — anything opening here before the card is clear opens for
+ * nobody, which is exactly what the earlier timing did. So this is the one part of the
+ * opening that genuinely does wait for the card to be gone at 2.82s, while the hero is
+ * released at 2.30s; `HERO_RELEASE_PROGRESS` in `Splash` records why those differ. The
+ * whole timeline is written out in `globals.css`, and this is one of its lines.
  */
 export function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -62,7 +64,7 @@ export function Nav() {
     <header className="pointer-events-none fixed inset-x-0 top-0 z-[100] flex justify-center px-gutter pt-4 sm:pt-5">
       <div
         className={cn(
-          "pointer-events-auto flex animate-[nav-reveal_700ms_var(--ease-swift)_3150ms_backwards] items-center gap-6 rounded-full border py-1 pr-1 pl-5 transition-[background-color,border-color,box-shadow] duration-500 ease-swift sm:gap-12 sm:pl-6",
+          "pointer-events-auto flex animate-[nav-reveal_700ms_var(--ease-swift)_2850ms_backwards] items-center gap-6 rounded-full border py-1 pr-1 pl-5 transition-[background-color,border-color,box-shadow] duration-500 ease-swift sm:gap-12 sm:pl-6",
           scrolled
             ? "border-line-strong/60 bg-paper/85 shadow-pill backdrop-blur-xl"
             : "border-line/80 bg-paper/55 backdrop-blur-md",

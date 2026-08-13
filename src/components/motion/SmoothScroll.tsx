@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "./gsap";
 import { prefersReducedMotion, setLenis } from "./scroll";
+import { OPENING_ACTIVE_CLASS } from "./opening";
 
 /**
  * Smooth scrolling, driven by a single requestAnimationFrame loop.
@@ -82,6 +83,9 @@ export function SmoothScroll() {
     });
 
     setLenis(lenis);
+    if (document.documentElement.classList.contains(OPENING_ACTIVE_CLASS)) {
+      lenis.stop();
+    }
 
     const onScroll = () => ScrollTrigger.update();
     lenis.on("scroll", onScroll);

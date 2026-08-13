@@ -1,15 +1,24 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import { Logo } from "@/components/ui/Logo";
 import { Bitcoin } from "@/components/brandlogos/Bitcoin";
 import { Ethereum } from "@/components/brandlogos/Ethereum";
 import { Solana } from "@/components/brandlogos/Solana";
+import { unlockScroll } from "@/components/motion/scroll";
+import {
+  HERO_RELEASE_EVENT,
+  OPENING_ACTIVE_CLASS,
+} from "@/components/motion/opening";
 
 /**
  * The opening card: the lockup, then the three markets, then it leaves.
  *
- * No JavaScript, no state, no client boundary. Every beat is a CSS animation with a delay,
- * which buys three things a scripted splash cannot. It cannot flash — there is no moment
- * where the overlay has been painted and its script has not yet claimed it. It cannot strand
- * anyone: with JavaScript off the sequence still plays and still ends. And under
+ * Every visual beat remains a CSS animation with a delay, so the overlay is present on the
+ * first paint and the no-JavaScript sequence still plays. A client effect watches the exit
+ * and releases scrolling and the hero halfway through it, so the headline rises out of the
+ * space the card is still vacating instead of waiting behind it — the arithmetic for that
+ * mark is on `HERO_RELEASE_PROGRESS` below. Under
  * `prefers-reduced-motion` the global collapse lands every animation on its final frame, so
  * the card is already gone and the page is simply there — which is the correct reduced-motion
  * behaviour for a splash, rather than a shorter splash.
@@ -76,9 +85,85 @@ const MARKETS = [
   },
 ] as const;
 
+/**
+ * How far through `splash-exit` the card has uncovered the hero.
+ *
+ * The hero is released while the card is still moving, so the text rises out of the
+ * space the card is vacating rather than waiting for it to be gone. Two earlier
+ * marks were both too late, and for the same reason: `--ease-expo` is
+ * cubic-bezier(0.16, 1, 0.3, 1), which spends almost all of its travel in the first
+ * third of its time, so the slide reads as over long before it is.
+ *
+ * The card ends at -101%, so at travel `p` its bottom edge sits at 100 - 101p
+ * viewport heights. Half-travel puts that edge at 49.5vh — the hero's own centre
+ * line, where the headline is — and expo returns 0.5 at a tenth of its input:
+ *
+ *   y(s) = 3s - 3s² + s³ = 0.5  ->  s ≈ 0.2063
+ *   x(0.2063) = 3(0.7937²)(0.2063)(0.16) + 3(0.7937)(0.2063²)(0.3) + 0.2063³
+ *             = 0.0624 + 0.0304 + 0.0088 = 0.102
+ *
+ * So the card is half gone 102ms into the 1000ms exit, at 2.30s, and fully clear at
+ * 2.82s. Releasing at 2.30s puts the whole of the headline's rise inside the second
+ * half of the slide. Waiting for -100% (x = 0.620) or for `finished` (x = 1) both
+ * left the hero blank after the card had visibly stopped.
+ */
+const HERO_RELEASE_PROGRESS = 0.102;
+
 export function Splash() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+
+    let cancelled = false;
+    let released = false;
+    let timer = 0;
+    const complete = () => {
+      if (cancelled || released) return;
+      released = true;
+      document.documentElement.classList.remove(OPENING_ACTIVE_CLASS);
+      unlockScroll();
+      window.dispatchEvent(new Event(HERO_RELEASE_EVENT));
+    };
+    const exit = root
+      .getAnimations()
+      .find(
+        (animation) =>
+          (animation as CSSAnimation).animationName === "splash-exit",
+      );
+
+    if (exit) {
+      /* The mark is read off the running animation rather than written down as a
+         wall-clock number, so it stays correct if the exit's delay or duration is
+         retimed — the only thing hard-coded here is the shape of the curve, which
+         is what `CARD_CLEAR_PROGRESS` records. */
+      const timing = exit.effect?.getComputedTiming();
+      const releaseAt =
+        Number(timing?.delay ?? 0) +
+        Number(timing?.activeDuration ?? 0) * HERO_RELEASE_PROGRESS;
+      const remaining = releaseAt - Number(exit.currentTime ?? 0);
+
+      if (Number.isFinite(remaining)) {
+        timer = window.setTimeout(complete, Math.max(0, remaining));
+      }
+
+      /* Backstop, and the only release if the timing could not be read: a
+         cancelled or never-started exit still has to let the page go. */
+      void exit.finished.then(complete, complete);
+    } else {
+      complete();
+    }
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, []);
+
   return (
     <div
+      ref={ref}
       aria-hidden
       className="fixed inset-0 z-[200] animate-[splash-exit_1000ms_var(--ease-expo)_2200ms_both] p-2.5 sm:p-3"
     >

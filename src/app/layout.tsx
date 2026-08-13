@@ -6,12 +6,17 @@ import { site } from "@/lib/content";
 import { Nav } from "@/components/chrome/Nav";
 import { Splash } from "@/components/chrome/Splash";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
+import { OPENING_ACTIVE_CLASS } from "@/components/motion/opening";
 
-const title = "Perpal — A non-custodial perpetuals client for Solana";
+/* The share-card title, and only that. The tab takes the bare product name — a tab
+   strip gives a title about fifteen characters before it truncates, so a descriptive
+   one arrives as "Perpal — A non-custodial perp…" and spends its width saying
+   nothing. A social card has room for the sentence, so it keeps it. */
+const socialTitle = "Perpal — A non-custodial perpetuals client for Solana";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
-  title: { default: title, template: "%s — Perpal" },
+  title: { default: site.name, template: "%s — Perpal" },
   description: site.description,
   applicationName: site.name,
   keywords: [
@@ -28,12 +33,12 @@ export const metadata: Metadata = {
     type: "website",
     url: site.url,
     siteName: site.name,
-    title,
+    title: socialTitle,
     description: site.description,
   },
   twitter: {
     card: "summary_large_image",
-    title,
+    title: socialTitle,
     description: site.description,
   },
   robots: { index: true, follow: true },
@@ -56,13 +61,13 @@ export const viewport: Viewport = {
  * animation claims them, which means the page would stay blank if the
  * animations never run. This puts them back for anyone without JavaScript.
  */
-const NO_JS_FALLBACK = `[data-reveal],[data-line]{opacity:1!important;transform:none!important}`;
+const NO_JS_FALLBACK = `[data-reveal],[data-line]{opacity:1!important;transform:none!important}html.${OPENING_ACTIVE_CLASS}{overflow:auto!important}html.${OPENING_ACTIVE_CLASS} body{overflow:auto!important;touch-action:auto!important}`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${fontVariables} antialiased`}
+      className={`${fontVariables} ${OPENING_ACTIVE_CLASS} antialiased`}
       /* Inline, so the first painted pixel is already the frame colour. A class
          here would depend on the stylesheet having resolved, and the frame
          before it does is the browser's own white canvas. */

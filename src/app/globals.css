@@ -317,7 +317,19 @@
     /* The frame colour the backdrop's inset leaves showing. It lives on <html>,
        not <body>, for the reason described on `body` below. */
     background-color: var(--color-paper);
+    scrollbar-gutter: stable;
     -webkit-text-size-adjust: 100%;
+  }
+
+  /* The opening card owns the viewport until its exit actually completes. */
+  html.opening-active,
+  html.opening-active body {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  html.opening-active body {
+    touch-action: none;
   }
 
   body {
@@ -629,17 +641,33 @@
      0.66s  Splash        BTC
      1.16s  Splash        ETH
      1.66s  Splash        SOL, which holds
-     2.20s  Splash        the card leaves, 1.0s
+     2.20s  Splash        the card leaves, 1.0s of `--ease-expo`. Read the marks below as
+                          positions rather than as a countdown: that curve is so
+                          front-loaded that the card is half gone in its first tenth
      2.20s  layout        `main` fades in, 0.6s. Opacity and nothing else — the page does
                           not move at all
-     3.20s  —             the card is clear of the viewport
-     3.15s  Nav           the capsule fades in, 0.7s, as the card clears the top of the
-                          viewport — the card slides upward, so that strip is the last
-                          thing it uncovers, and anything arriving there before 3.2s
-                          arrives for nobody
-     3.25s  Hero          the headline rises line by line, 1.05s each, staggered, once the
-                          card has left — a GSAP tween rather than a keyframe, because it
-                          joins the `MaskedLines` system the rest of the page's type uses
+     2.30s  Splash        the release, and it is deliberately mid-slide. The card ends at
+                          -101%, so at half travel its lower edge sits at 49.5vh — across
+                          the headline — and expo reaches half at a tenth of its input.
+                          Scrolling and the hero both go here. `HERO_RELEASE_PROGRESS` in
+                          `Splash` carries the working
+     2.30s  Hero          the headline rises line by line on that event, 1.05s each, 0.085s
+                          apart, so the second line settles at 3.435s. It rises *under* the
+                          card, into the space the card is still clearing above it, which is
+                          the point: one movement, not a handover. `main` is at 61% opacity
+                          here and 96% by 2.50s, so the rise is legible for all of it
+     2.45s  Hero          the lede fades in, 0.7s, opacity and nothing else. Same event,
+                          0.15s later, ending at 3.15s while the headline is still settling
+                          — the two cross rather than queue, which makes the hero one
+                          arrival and not two. The card is down to the top 16vh by now
+     2.82s  Splash        the card is fully clear. It passes -100% at 62% of the exit, and
+                          the last 380ms moves it by a hundredth of a viewport — which is
+                          why nothing in the hero waits for this mark any more
+     2.85s  Nav           the capsule fades in, 0.7s. The one thing that does wait: the card
+                          slides upward, so this strip is the last it uncovers, and anything
+                          opening here before 2.82s opens for nobody
+     3.20s  Splash        the exit animation formally ends. Nothing is waiting on it; it
+                          stays as the backstop if the release above cannot be scheduled
 
    Each beat runs 720ms while the marks change every 500ms, so consecutive marks cross
    rather than cutting. That overlap is what lets the sequence be unhurried without being
