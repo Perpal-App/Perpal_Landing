@@ -22,6 +22,7 @@ type ButtonProps = {
   /** Defaults to on, except for variants that hold still. */
   magnetic?: boolean;
   type?: "button" | "submit";
+  disabled?: boolean;
   "aria-label"?: string;
 };
 

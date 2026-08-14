@@ -8,6 +8,7 @@ import { Confetti } from "@/components/ui/Confetti";
 import { Mascot } from "@/components/ui/Mascot";
 
 type Stage = "closed" | "open" | "done";
+type Confirmation = (typeof waitlist)["success" | "alreadyRegistered"];
 
 /**
  * The control's width at each stage.
@@ -198,7 +199,8 @@ async function readWaitlistCount(signal?: AbortSignal): Promise<number | null> {
 export function WaitlistField() {
   const [stage, setStage] = useState<Stage>("closed");
   const [celebrate, setCelebrate] = useState(false);
-  const [confirmation, setConfirmation] = useState(waitlist.success);
+  const [confirmation, setConfirmation] =
+    useState<Confirmation>(waitlist.success);
   const [focused, setFocused] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
