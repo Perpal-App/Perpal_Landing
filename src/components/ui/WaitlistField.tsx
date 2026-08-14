@@ -5,7 +5,6 @@ import { cn } from "@/lib/cn";
 import { cta, waitlist } from "@/lib/content";
 import { Button } from "@/components/ui/Button";
 import { Confetti } from "@/components/ui/Confetti";
-import { Mark } from "@/components/ui/Logo";
 import { Mascot } from "@/components/ui/Mascot";
 
 type Stage = "closed" | "open" | "done";
@@ -64,7 +63,7 @@ const LAYER =
  */
 const GLASS = "bg-paper/45 backdrop-blur-sm";
 const JOINED_STORAGE_KEY = "perpal.waitlist.joined.v1";
-const VALIDATION_FEEDBACK_MS = 420;
+const VALIDATION_FEEDBACK_MS = 150;
 
 /** The glyph that lands where the label was. Drawn, because an emoji is not an icon. */
 function Check() {
@@ -305,7 +304,6 @@ export function WaitlistField() {
         error?: string;
         status?: "registered" | "already_registered";
         retryAfterSeconds?: number;
-        count?: number | null;
       } | null;
 
       if (result?.ok) {
@@ -315,9 +313,7 @@ export function WaitlistField() {
           // A blocked browser store must not turn a persisted registration into failure.
         }
         const alreadyRegistered = result.status === "already_registered";
-        if (isWaitlistCount(result.count)) {
-          setJoinedCount(result.count);
-        } else if (!alreadyRegistered) {
+        if (!alreadyRegistered) {
           setJoinedCount((current) =>
             current === null ? current : current + 1,
           );
@@ -536,7 +532,7 @@ export function WaitlistField() {
                       : "scale-75 opacity-0",
                   )}
                 >
-                  <Mark className={cn("size-5", submitting && "animate-spin")} />
+                  <span className="block size-5 animate-spin rounded-full border-2 border-paper/35 border-t-paper" />
                 </span>
               </span>
             </Button>

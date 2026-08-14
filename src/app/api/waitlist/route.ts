@@ -132,20 +132,12 @@ export async function POST(request: Request): Promise<Response> {
       return rateLimited(result.retryAfterSeconds);
     }
 
-    const count = await getWaitlistCount().catch((error) => {
-      console.error("[waitlist] post-registration count unavailable", {
-        error: error instanceof Error ? error.name : "UnknownError",
-      });
-      return null;
-    });
-
     if (result.status === "already_registered") {
       console.info("[waitlist] registration already exists");
       return json(
         {
           ok: true,
           status: "already_registered",
-          count,
         },
         200,
       );
@@ -160,7 +152,6 @@ export async function POST(request: Request): Promise<Response> {
         ok: true,
         status: "registered",
         retryAfterSeconds: result.retryAfterSeconds,
-        count,
       },
       200,
     );
