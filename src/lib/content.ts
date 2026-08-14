@@ -68,12 +68,6 @@ export const cta = {
      where the action itself now lives. Neither of them signs anyone up — they
      carry the reader to the button that does. */
   href: "#access",
-  /* That button's destination, and the one line on this page that is not final.
-     There is no waitlist form yet, so it points at the org that will hold it —
-     the same placeholder discipline the Android badge used before the app had a
-     store listing to link to. On the day there is a form URL it goes here and
-     nothing else changes. */
-  join: site.repo,
 } as const;
 
 /**
@@ -87,9 +81,8 @@ export const cta = {
  * `success` is present tense, which the page's own convention above allows —
  * everything here is written as though the app is shipping. It is worth being
  * clear about what that does and does not cover: it licenses the tense, not the
- * claim. Nothing stores this address yet, so this line has to become true at
- * launch or leave the copy, exactly as the note at the top of this file requires
- * of every other feature named on the page.
+ * claim. The server only reaches this state after MongoDB accepts the registration
+ * or confirms that the same address is already present.
  *
  * `invalid` says what happened and what to do, and names no field the reader
  * cannot see.
@@ -102,6 +95,11 @@ export const waitlist = {
   placeholder: "Email",
   submit: "Join",
   success: "You're in",
+  alreadyRegistered: "Already joined",
+  count: (total: number) => ({
+    lead: `${total.toLocaleString("en-US")} ${total === 1 ? "trader" : "traders"}`,
+    tail: total === 1 ? "is already in" : "are already in",
+  }),
   /* Two messages, because "invalid" covers two different mistakes and telling
      them apart is the difference between a message that helps and one that only
      scolds. An empty field has not been filled in; a malformed one has. */
@@ -111,6 +109,8 @@ export const waitlist = {
      would reintroduce the shift the slot exists to prevent. */
   empty: "Enter your email address.",
   invalid: "That does not look like an email address.",
+  retry: "Register again in",
+  unavailable: "Could not join. Please try again.",
 } as const;
 
 /* -------------------------------------------------------------------------- */

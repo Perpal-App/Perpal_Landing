@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { cn } from "@/lib/cn";
 import { cta, waitlist } from "@/lib/content";
 import { Button } from "@/components/ui/Button";
@@ -66,6 +66,7 @@ const LAYER =
  * stopped being legible as a field and became a grey wash.
  */
 const GLASS = "bg-paper/45 backdrop-blur-sm";
+const JOINED_STORAGE_KEY = "perpal.waitlist.joined.v1";
 
 /** The glyph that lands where the label was. Drawn, because an emoji is not an icon. */
 function Check() {
@@ -81,6 +82,30 @@ function Check() {
       />
     </svg>
   );
+}
+
+function formatCooldown(seconds: number): string {
+  const minutes = Math.floor(seconds / 60);
+  const remainder = seconds % 60;
+  return `${minutes}:${String(remainder).padStart(2, "0")}`;
+}
+
+async function readWaitlistCount(signal?: AbortSignal): Promise<number | null> {
+  const response = await fetch("/api/waitlist", {
+    cache: "no-store",
+    signal,
+  });
+  const result: unknown = await response.json();
+  const count =
+    typeof result === "object" && result !== null && "count" in result
+      ? result.count
+      : null;
+
+  return typeof count === "number" &&
+    Number.isSafeInteger(count) &&
+    count >= 0
+    ? count
+    : null;
 }
 
 /**
@@ -172,11 +197,69 @@ function Check() {
  */
 export function WaitlistField() {
   const [stage, setStage] = useState<Stage>("closed");
+  const [celebrate, setCelebrate] = useState(false);
+  const [confirmation, setConfirmation] = useState(waitlist.success);
   const [focused, setFocused] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [joinedCount, setJoinedCount] = useState<number | null>(null);
+  const [retryUntil, setRetryUntil] = useState<number | null>(null);
+  const [retryRemaining, setRetryRemaining] = useState<number | null>(null);
   const field = useRef<HTMLInputElement>(null);
   const fieldId = useId();
   const errorId = `${fieldId}-error`;
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(JOINED_STORAGE_KEY);
+      if (stored === null) return;
+
+      const joinedAt = Number(stored);
+      if (
+        Number.isFinite(joinedAt) &&
+        joinedAt > 0 &&
+        joinedAt <= Date.now()
+      ) {
+        setConfirmation(waitlist.alreadyRegistered);
+        setStage("done");
+        return;
+      }
+
+      window.localStorage.removeItem(JOINED_STORAGE_KEY);
+    } catch {
+      // Storage can be unavailable; MongoDB remains the registration authority.
+    }
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    void readWaitlistCount(controller.signal)
+      .then((count) => count !== null && setJoinedCount(count))
+      .catch(() => undefined);
+
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    if (retryUntil === null) return;
+
+    const update = () => {
+      const remaining = Math.max(0, Math.ceil((retryUntil - Date.now()) / 1_000));
+      setRetryRemaining(remaining || null);
+      if (remaining === 0) setRetryUntil(null);
+    };
+
+    update();
+    const timer = window.setInterval(update, 1_000);
+    return () => window.clearInterval(timer);
+  }, [retryUntil]);
+
+  const startCooldown = (seconds: number) => {
+    const duration = Math.max(1, Math.ceil(seconds));
+    setRetryRemaining(duration);
+    setRetryUntil(Date.now() + duration * 1_000);
+  };
 
   const open = () => {
     setStage("open");
@@ -185,25 +268,77 @@ export function WaitlistField() {
     requestAnimationFrame(() => field.current?.focus());
   };
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     const input = field.current;
-    if (!input) return;
+    if (!input || submitting) return;
+
+    const email = input.value.trim().normalize("NFKC").toLowerCase();
+    input.value = email;
 
     /* Validation reads the platform's own answer and then says it in the
        product's words. `type="email"` and `required` already encode what a valid
        address is, so `validity` is consulted rather than a pattern invented here
        — but `reportValidity` is not called, because its bubble would sit over the
        capsule in the browser's wording and the browser's typeface. */
-    const { valueMissing, typeMismatch } = input.validity;
-    if (valueMissing || typeMismatch) {
+    const { tooLong, valueMissing, typeMismatch } = input.validity;
+    if (valueMissing || typeMismatch || tooLong) {
       setError(valueMissing ? waitlist.empty : waitlist.invalid);
       input.focus();
       return;
     }
 
     setError(null);
-    setStage("done");
+    setSubmitting(true);
+
+    try {
+      const response = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const result = (await response.json().catch(() => null)) as {
+        ok?: boolean;
+        error?: string;
+        status?: "registered";
+        retryAfterSeconds?: number;
+      } | null;
+
+      if (result?.ok) {
+        try {
+          window.localStorage.setItem(JOINED_STORAGE_KEY, String(Date.now()));
+        } catch {
+          // A blocked browser store must not turn a persisted registration into failure.
+        }
+        void readWaitlistCount()
+          .then((count) => count !== null && setJoinedCount(count))
+          .catch(() => undefined);
+        setConfirmation(waitlist.success);
+        setCelebrate(true);
+        setStage("done");
+        return;
+      }
+
+      if (
+        result?.error === "rate_limited" &&
+        typeof result.retryAfterSeconds === "number" &&
+        Number.isFinite(result.retryAfterSeconds)
+      ) {
+        setError(null);
+        startCooldown(result.retryAfterSeconds);
+        return;
+      }
+
+      setError(
+        result?.error === "invalid_email"
+          ? waitlist.invalid
+          : waitlist.unavailable,
+      );
+    } catch {
+      setError(waitlist.unavailable);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   /* Nothing at rest, and a hairline only when there is something to say. Focus
@@ -225,7 +360,16 @@ export function WaitlistField() {
      this slot instead of being inserted below the control, so a rejected submit
      changes pixels but not geometry — the hero, the capsule and the pointer all
      stay exactly where they were. */
-  const message = error ?? "\u00a0";
+  const cooldown = retryRemaining
+    ? `${waitlist.retry} ${formatCooldown(retryRemaining)}`
+    : null;
+  const countCopy =
+    joinedCount === null ? null : waitlist.count(joinedCount);
+  const count = countCopy
+    ? `${countCopy.lead} ${countCopy.tail}`
+    : null;
+  const message = cooldown ?? error ?? count ?? "\u00a0";
+  const messageVisible = Boolean(cooldown || error || count);
 
   return (
     <div className="relative isolate flex w-full flex-col items-center">
@@ -246,7 +390,7 @@ export function WaitlistField() {
           of overhang either side of a 280px control would throw most of the
           confetti off the sides of the screen, where `body`'s `overflow-x: clip`
           would silently eat it. */}
-      {stage === "done" && (
+      {stage === "done" && celebrate && (
         <div className="pointer-events-none absolute -inset-x-6 top-0 -z-10 h-[26rem] sm:-inset-x-32">
           <Confetti />
         </div>
@@ -265,6 +409,9 @@ export function WaitlistField() {
               : cn("rounded-2xl shadow-pill", GLASS),
             stage === "closed" ? "ring-transparent" : ring,
             WIDTH[stage],
+            stage === "done" &&
+              confirmation === waitlist.alreadyRegistered &&
+              "w-60 sm:w-64",
           )}
         >
           <div
@@ -295,6 +442,7 @@ export function WaitlistField() {
             onSubmit={submit}
             noValidate
             inert={stage !== "open"}
+            aria-busy={submitting}
             className={cn(
               LAYER,
               "gap-1 p-1",
@@ -309,7 +457,10 @@ export function WaitlistField() {
               id={fieldId}
               type="email"
               required
+              maxLength={254}
               autoComplete="email"
+              spellCheck={false}
+              readOnly={submitting || retryRemaining !== null}
               placeholder={waitlist.placeholder}
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
@@ -352,6 +503,7 @@ export function WaitlistField() {
               type="submit"
               variant="glass"
               magnetic={false}
+              disabled={submitting || retryRemaining !== null}
               className="shrink-0 px-5 backdrop-blur-sm sm:px-7"
             >
               {waitlist.submit}
@@ -362,12 +514,14 @@ export function WaitlistField() {
             inert={stage !== "done"}
             className={cn(
               LAYER,
-              "justify-center gap-2 px-5 font-ui text-base font-semibold text-ink",
+              "justify-center gap-2 px-4 font-ui text-sm font-semibold text-ink sm:px-5 sm:text-base",
               stage === "done" ? "opacity-100" : "opacity-0",
             )}
           >
             <Check />
-            <span role="status">{waitlist.success}</span>
+            <span role="status" className="whitespace-nowrap">
+              {confirmation}
+            </span>
 
             {/* Inside the capsule, riding with the words rather than standing next
                 to them — so the whole success state is one object, the way the
@@ -400,7 +554,7 @@ export function WaitlistField() {
           carries the meaning; the capsule's hairline only points at it. */}
       <p
         id={errorId}
-        role="alert"
+        role={cooldown ? "timer" : error ? "alert" : "status"}
         className={cn(
           /* Two lines of reserved height on a phone, one from `sm` up. The longer
              message is 41 characters, which at `text-sm` needs about 266px and so
@@ -408,10 +562,30 @@ export function WaitlistField() {
              reserves one line while holding two is the layout shift this slot
              exists to prevent, arriving by the back door. */
           "mt-3 min-h-10 text-center text-sm text-muted transition-opacity duration-200 ease-swift sm:min-h-5",
-          error ? "opacity-100" : "opacity-0",
+          messageVisible ? "opacity-100" : "opacity-0",
         )}
       >
-        {message}
+        {countCopy && !cooldown && !error ? (
+          <span className="inline-flex flex-wrap items-center justify-center gap-x-2">
+            <span className="inline-flex items-center gap-1">
+              <span>{countCopy.lead}</span>
+              <span aria-hidden className="inline-flex -space-x-1">
+                <Mascot mood="right" className="h-5 w-4" />
+                <Mascot
+                  mood="cheering"
+                  className="h-5 w-4 [--color-lilac:var(--color-mascot-yellow)]"
+                />
+                <Mascot
+                  mood="asking"
+                  className="h-5 w-4 [--color-lilac:var(--color-mascot-orange)]"
+                />
+              </span>
+            </span>
+            <span>{countCopy.tail}</span>
+          </span>
+        ) : (
+          message
+        )}
       </p>
     </div>
   );

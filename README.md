@@ -30,8 +30,42 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-No environment variables are currently required. The waitlist action uses the
-URL configured as `cta.join` in `src/lib/content.ts`.
+Copy `.env.example` to `.env.local` and provide the MongoDB and waitlist secrets.
+The public form posts only an email address to `POST /api/waitlist`; successful
+registrations are persisted before the existing success state appears.
+
+## Waitlist backend
+
+The waitlist uses the official MongoDB driver and no CAPTCHA or external rate
+limiter. MongoDB enforces a unique email hash and an atomic one-hour cooldown per
+IP. Email addresses are encrypted with AES-256-GCM, while email and IP lookup keys
+use HMAC-SHA256. Raw IP addresses are never stored.
+
+For operations, `waitlist_readable_registrations` stores the normalized email,
+registration time, source, and status in readable form. This collection contains
+PII: restrict it to the minimum database users, do not expose it through a public
+read route, and do not include it in application logs. Use a separate read-only
+MongoDB credential scoped to this collection for invite delivery; do not place
+that credential in the landing-page deployment.
+
+After a successful response, the browser stores only a versioned registration
+timestamp so returning visitors keep the success state. The email is never placed
+in browser storage, and the marker is never trusted by the API; MongoDB validation,
+email uniqueness, and the IP cooldown remain authoritative.
+
+Required environment variables are documented in `.env.example`. Generate the
+two secrets independently and keep them stable; changing either requires a data
+migration. `WAITLIST_IP_HEADER` must name a header that your trusted reverse proxy
+overwrites. Never point it at a client-controlled forwarding header.
+`WAITLIST_ALLOWED_ORIGIN` is matched exactly. Keep localhost only in `.env.local`;
+production rejects localhost, loopback, and non-HTTPS origins.
+
+On first use, the server creates strict MongoDB JSON-schema validators and the
+unique and TTL indexes. The runtime MongoDB user therefore needs permission to
+create collections and indexes in `MONGODB_DB`, but should have no access to any
+other database. After initialization, replace it with a least-privilege runtime
+role limited to the three waitlist collections. Keep database network access
+restricted to the deployment and enable the provider's encryption at rest.
 
 ## Scripts
 
@@ -41,6 +75,7 @@ URL configured as `cta.join` in `src/lib/content.ts`.
 | `npm run build` | Create a production build.                   |
 | `npm run start` | Serve an existing production build.          |
 | `npm run lint`  | Run ESLint across the repository.             |
+| `npm run test:waitlist` | Check waitlist input and IP normalization. |
 
 ## Project structure
 
@@ -101,6 +136,6 @@ Create the production build with:
 npm run build
 ```
 
-The output can be deployed to any platform that supports Next.js 16. Confirm the
-production `cta.join` destination before launch; it currently comes directly
-from the content configuration.
+The output can be deployed to any platform that supports Next.js 16 and provides
+a trusted client-IP header. Configure the production environment from
+`.env.example` before enabling the waitlist.
