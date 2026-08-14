@@ -37,9 +37,12 @@ registrations are persisted before the existing success state appears.
 ## Waitlist backend
 
 The waitlist uses the official MongoDB driver and no CAPTCHA or external rate
-limiter. MongoDB enforces a unique email hash and an atomic one-hour cooldown per
-IP. Email addresses are encrypted with AES-256-GCM, while email and IP lookup keys
-use HMAC-SHA256. Raw IP addresses are never stored.
+limiter. MongoDB allows five registration requests per IP in a fixed one-hour
+window and keeps a separate one-hour cooldown only after a new registration is
+successfully inserted. Duplicate and failed registrations do not consume that
+success cooldown. MongoDB also enforces a unique email hash. Email addresses are
+encrypted with AES-256-GCM, while email and IP lookup keys use HMAC-SHA256. Raw IP
+addresses are never stored.
 
 For operations, `waitlist_readable_registrations` stores the normalized email,
 registration time, source, and status in readable form. This collection contains

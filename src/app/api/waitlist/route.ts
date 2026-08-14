@@ -1,4 +1,5 @@
 import {
+  checkWaitlistRequestLimit,
   getWaitlistCount,
   normalizeClientIp,
   parseWaitlistPayload,
@@ -52,6 +53,18 @@ function clientIp(request: Request): string | null {
   return normalizeClientIp(request.headers.get(headerName));
 }
 
+function rateLimited(retryAfterSeconds: number): Response {
+  return json(
+    {
+      ok: false,
+      error: "rate_limited",
+      retryAfterSeconds,
+    },
+    200,
+    { "Retry-After": String(retryAfterSeconds) },
+  );
+}
+
 export async function GET(): Promise<Response> {
   try {
     const count = await getWaitlistCount();
@@ -70,6 +83,17 @@ export async function POST(request: Request): Promise<Response> {
   try {
     if (!allowedOrigin(request)) return json({ ok: false }, 403);
 
+    const normalizedIp = clientIp(request);
+    if (!normalizedIp) return json({ ok: false }, 403);
+
+    const requestLimit = await checkWaitlistRequestLimit(normalizedIp);
+    if (!requestLimit.allowed) {
+      console.warn("[waitlist] request rate-limited", {
+        retryAfterSeconds: requestLimit.retryAfterSeconds,
+      });
+      return rateLimited(requestLimit.retryAfterSeconds);
+    }
+
     const contentType = request.headers.get("content-type")?.split(";", 1)[0];
     if (contentType !== "application/json") {
       return json({ ok: false, error: "invalid_request" }, 415);
@@ -79,9 +103,6 @@ export async function POST(request: Request): Promise<Response> {
     if (Number.isFinite(declaredLength) && declaredLength > MAX_BODY_BYTES) {
       return json({ ok: false, error: "invalid_request" }, 413);
     }
-
-    const normalizedIp = clientIp(request);
-    if (!normalizedIp) return json({ ok: false }, 403);
 
     const rawBody = await request.text();
     if (new TextEncoder().encode(rawBody).byteLength > MAX_BODY_BYTES) {
@@ -108,26 +129,38 @@ export async function POST(request: Request): Promise<Response> {
       console.warn("[waitlist] registration rate-limited", {
         retryAfterSeconds: result.retryAfterSeconds,
       });
+      return rateLimited(result.retryAfterSeconds);
+    }
+
+    const count = await getWaitlistCount().catch((error) => {
+      console.error("[waitlist] post-registration count unavailable", {
+        error: error instanceof Error ? error.name : "UnknownError",
+      });
+      return null;
+    });
+
+    if (result.status === "already_registered") {
+      console.info("[waitlist] registration already exists");
       return json(
         {
-          ok: false,
-          error: "rate_limited",
-          retryAfterSeconds: result.retryAfterSeconds,
+          ok: true,
+          status: "already_registered",
+          count,
         },
         200,
-        { "Retry-After": String(result.retryAfterSeconds) },
       );
     }
 
     console.info("[waitlist] registration accepted", {
-      outcome: result.status,
       cooldownSeconds: result.retryAfterSeconds,
     });
+
     return json(
       {
         ok: true,
         status: "registered",
         retryAfterSeconds: result.retryAfterSeconds,
+        count,
       },
       200,
     );

@@ -54,7 +54,7 @@ type ButtonProps = {
    wants any, belongs to that variant. */
 const base = [
   "group relative isolate inline-flex min-h-11 items-center justify-center",
-  "overflow-hidden select-none",
+  "overflow-hidden select-none disabled:pointer-events-none",
   "font-ui font-semibold tracking-[-0.005em]",
   "transition-colors duration-200 ease-swift",
 ].join(" ");

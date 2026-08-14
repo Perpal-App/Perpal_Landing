@@ -14,7 +14,8 @@ import {
 } from "mongodb";
 
 const EMAIL_MAX_LENGTH = 254;
-const RATE_LIMIT_MS = 60 * 60 * 1000;
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+const REQUEST_LIMIT_PER_WINDOW = 5;
 const EMAIL_LOCAL_PATTERN = /^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+$/iu;
 const DOMAIN_LABEL_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/iu;
 const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001f\u007f]/u;
@@ -52,16 +53,29 @@ type IpLimitDocument = {
   updatedAt: Date;
 };
 
+type RequestLimitDocument = {
+  _id: string;
+  requestCount: number;
+  windowStartedAt: Date;
+  expiresAt: Date;
+  updatedAt: Date;
+};
+
 type WaitlistCollections = {
   registrations: Collection<WaitlistDocument>;
   readableRegistrations: Collection<ReadableWaitlistDocument>;
   ipLimits: Collection<IpLimitDocument>;
+  requestLimits: Collection<RequestLimitDocument>;
 };
 
 export type RegistrationResult =
   | { status: "accepted"; retryAfterSeconds: number }
-  | { status: "already_registered"; retryAfterSeconds: number }
+  | { status: "already_registered" }
   | { status: "rate_limited"; retryAfterSeconds: number };
+
+export type RequestLimitResult =
+  | { allowed: true }
+  | { allowed: false; retryAfterSeconds: number };
 
 const registrationValidator: Document = {
   $jsonSchema: {
@@ -116,6 +130,31 @@ const ipLimitValidator: Document = {
         pattern: "^[a-f0-9-]{36}$",
       },
       nextAllowedAt: { bsonType: "date" },
+      expiresAt: { bsonType: "date" },
+      updatedAt: { bsonType: "date" },
+    },
+  },
+};
+
+const requestLimitValidator: Document = {
+  $jsonSchema: {
+    bsonType: "object",
+    required: [
+      "_id",
+      "requestCount",
+      "windowStartedAt",
+      "expiresAt",
+      "updatedAt",
+    ],
+    additionalProperties: false,
+    properties: {
+      _id: { bsonType: "string", pattern: "^[a-f0-9]{64}$" },
+      requestCount: {
+        bsonType: "int",
+        minimum: 1,
+        maximum: REQUEST_LIMIT_PER_WINDOW,
+      },
+      windowStartedAt: { bsonType: "date" },
       expiresAt: { bsonType: "date" },
       updatedAt: { bsonType: "date" },
     },
@@ -237,6 +276,11 @@ async function collections(): Promise<WaitlistCollections> {
         "waitlist_ip_limits",
         ipLimitValidator,
       );
+      const requestLimits = await validatedCollection<RequestLimitDocument>(
+        db,
+        "waitlist_ip_request_limits",
+        requestLimitValidator,
+      );
 
       await Promise.all([
         registrations.createIndex(
@@ -251,9 +295,18 @@ async function collections(): Promise<WaitlistCollections> {
           { expiresAt: 1 },
           { expireAfterSeconds: 0, name: "expire_ip_limits" },
         ),
+        requestLimits.createIndex(
+          { expiresAt: 1 },
+          { expireAfterSeconds: 0, name: "expire_request_limits" },
+        ),
       ]);
 
-      return { registrations, readableRegistrations, ipLimits };
+      return {
+        registrations,
+        readableRegistrations,
+        ipLimits,
+        requestLimits,
+      };
     })().catch((error) => {
       collectionsPromise = undefined;
       throw error;
@@ -364,13 +417,83 @@ export async function getWaitlistCount(): Promise<number> {
   return registrations.countDocuments({});
 }
 
+export async function checkWaitlistRequestLimit(
+  normalizedIp: string,
+): Promise<RequestLimitResult> {
+  const { requestLimits } = await collections();
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + RATE_LIMIT_WINDOW_MS);
+  const ipHash = keyedHash("ip", normalizedIp);
+
+  try {
+    const current = await requestLimits.findOneAndUpdate(
+      {
+        _id: ipHash,
+        $or: [
+          { expiresAt: { $lte: now } },
+          { requestCount: { $lt: REQUEST_LIMIT_PER_WINDOW } },
+        ],
+      },
+      [
+        {
+          $set: {
+            requestCount: {
+              $cond: [
+                { $lte: [{ $ifNull: ["$expiresAt", new Date(0)] }, now] },
+                1,
+                { $add: [{ $ifNull: ["$requestCount", 0] }, 1] },
+              ],
+            },
+            windowStartedAt: {
+              $cond: [
+                { $lte: [{ $ifNull: ["$expiresAt", new Date(0)] }, now] },
+                now,
+                "$windowStartedAt",
+              ],
+            },
+            expiresAt: {
+              $cond: [
+                { $lte: [{ $ifNull: ["$expiresAt", new Date(0)] }, now] },
+                expiresAt,
+                "$expiresAt",
+              ],
+            },
+            updatedAt: now,
+          },
+        },
+      ],
+      { includeResultMetadata: false, returnDocument: "after", upsert: true },
+    );
+
+    if (current && current.requestCount <= REQUEST_LIMIT_PER_WINDOW) {
+      return { allowed: true };
+    }
+  } catch (error) {
+    // An upsert collision means another request filled the fixed window first.
+    if (!hasMongoCode(error, 11000)) throw error;
+  }
+
+  const activeLimit = await requestLimits.findOne(
+    { _id: ipHash },
+    { projection: { expiresAt: 1 } },
+  );
+  const remaining = activeLimit
+    ? activeLimit.expiresAt.getTime() - now.getTime()
+    : 1_000;
+
+  return {
+    allowed: false,
+    retryAfterSeconds: Math.max(1, Math.ceil(remaining / 1_000)),
+  };
+}
+
 async function acquireIpSlot(
   ipLimits: Collection<IpLimitDocument>,
   ipHash: string,
   now: Date,
   requestId: string,
 ): Promise<RegistrationResult> {
-  const nextAllowedAt = new Date(now.getTime() + RATE_LIMIT_MS);
+  const nextAllowedAt = new Date(now.getTime() + RATE_LIMIT_WINDOW_MS);
 
   try {
     const acquired = await ipLimits.findOneAndUpdate(
@@ -395,7 +518,7 @@ async function acquireIpSlot(
     if (acquired?.requestId === requestId) {
       return {
         status: "accepted",
-        retryAfterSeconds: RATE_LIMIT_MS / 1_000,
+        retryAfterSeconds: RATE_LIMIT_WINDOW_MS / 1_000,
       };
     }
   } catch (error) {
@@ -477,14 +600,12 @@ export async function registerWaitlist(
   }
 
   if (alreadyRegistered) {
-    return {
-      status: "already_registered",
-      retryAfterSeconds: RATE_LIMIT_MS / 1_000,
-    };
+    await ipLimits.deleteOne({ _id: ipHash, requestId });
+    return { status: "already_registered" };
   }
 
   return {
     status: "accepted",
-    retryAfterSeconds: RATE_LIMIT_MS / 1_000,
+    retryAfterSeconds: RATE_LIMIT_WINDOW_MS / 1_000,
   };
 }

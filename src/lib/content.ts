@@ -94,6 +94,7 @@ export const waitlist = {
   label: "Email address",
   placeholder: "Email",
   submit: "Join",
+  checking: "Checking registration",
   success: "You're in",
   alreadyRegistered: "Already joined",
   count: (total: number) => ({

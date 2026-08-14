@@ -5,6 +5,7 @@ import { cn } from "@/lib/cn";
 import { cta, waitlist } from "@/lib/content";
 import { Button } from "@/components/ui/Button";
 import { Confetti } from "@/components/ui/Confetti";
+import { Mark } from "@/components/ui/Logo";
 import { Mascot } from "@/components/ui/Mascot";
 
 type Stage = "closed" | "open" | "done";
@@ -63,6 +64,7 @@ const LAYER =
  */
 const GLASS = "bg-paper/45 backdrop-blur-sm";
 const JOINED_STORAGE_KEY = "perpal.waitlist.joined.v1";
+const VALIDATION_FEEDBACK_MS = 420;
 
 /** The glyph that lands where the label was. Drawn, because an emoji is not an icon. */
 function Check() {
@@ -86,6 +88,10 @@ function formatCooldown(seconds: number): string {
   return `${minutes}:${String(remainder).padStart(2, "0")}`;
 }
 
+function isWaitlistCount(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+}
+
 async function readWaitlistCount(signal?: AbortSignal): Promise<number | null> {
   const response = await fetch("/api/waitlist", {
     cache: "no-store",
@@ -97,11 +103,7 @@ async function readWaitlistCount(signal?: AbortSignal): Promise<number | null> {
       ? result.count
       : null;
 
-  return typeof count === "number" &&
-    Number.isSafeInteger(count) &&
-    count >= 0
-    ? count
-    : null;
+  return isWaitlistCount(count) ? count : null;
 }
 
 /**
@@ -288,16 +290,22 @@ export function WaitlistField() {
     setSubmitting(true);
 
     try {
-      const response = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+      const [response] = await Promise.all([
+        fetch("/api/waitlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        }),
+        new Promise<void>((resolve) =>
+          window.setTimeout(resolve, VALIDATION_FEEDBACK_MS),
+        ),
+      ]);
       const result = (await response.json().catch(() => null)) as {
         ok?: boolean;
         error?: string;
-        status?: "registered";
+        status?: "registered" | "already_registered";
         retryAfterSeconds?: number;
+        count?: number | null;
       } | null;
 
       if (result?.ok) {
@@ -306,11 +314,18 @@ export function WaitlistField() {
         } catch {
           // A blocked browser store must not turn a persisted registration into failure.
         }
-        void readWaitlistCount()
-          .then((count) => count !== null && setJoinedCount(count))
-          .catch(() => undefined);
-        setConfirmation(waitlist.success);
-        setCelebrate(true);
+        const alreadyRegistered = result.status === "already_registered";
+        if (isWaitlistCount(result.count)) {
+          setJoinedCount(result.count);
+        } else if (!alreadyRegistered) {
+          setJoinedCount((current) =>
+            current === null ? current : current + 1,
+          );
+        }
+        setConfirmation(
+          alreadyRegistered ? waitlist.alreadyRegistered : waitlist.success,
+        );
+        setCelebrate(!alreadyRegistered);
         setStage("done");
         return;
       }
@@ -498,9 +513,32 @@ export function WaitlistField() {
               variant="glass"
               magnetic={false}
               disabled={submitting || retryRemaining !== null}
+              aria-label={submitting ? waitlist.checking : undefined}
               className="shrink-0 px-5 backdrop-blur-sm sm:px-7"
             >
-              {waitlist.submit}
+              <span className="grid place-items-center">
+                <span
+                  className={cn(
+                    "col-start-1 row-start-1 transition-[opacity,transform] duration-200 ease-swift",
+                    submitting
+                      ? "scale-75 opacity-0"
+                      : "scale-100 opacity-100",
+                  )}
+                >
+                  {waitlist.submit}
+                </span>
+                <span
+                  aria-hidden
+                  className={cn(
+                    "col-start-1 row-start-1 size-5 transition-[opacity,transform] duration-200 ease-swift",
+                    submitting
+                      ? "scale-100 opacity-100"
+                      : "scale-75 opacity-0",
+                  )}
+                >
+                  <Mark className={cn("size-5", submitting && "animate-spin")} />
+                </span>
+              </span>
             </Button>
           </form>
 
