@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { cn } from "@/lib/cn";
 import { cta, waitlist } from "@/lib/content";
-import { Button } from "@/components/ui/Button";
+import { Button, WAITLIST_OPEN_EVENT } from "@/components/ui/Button";
 import { Confetti } from "@/components/ui/Confetti";
 import { Mascot } from "@/components/ui/Mascot";
 
@@ -205,6 +205,16 @@ export function WaitlistField() {
   const field = useRef<HTMLInputElement>(null);
   const fieldId = useId();
   const errorId = `${fieldId}-error`;
+
+  useEffect(() => {
+    const openFromCta = () => {
+      setStage("open");
+      requestAnimationFrame(() => field.current?.focus({ preventScroll: true }));
+    };
+
+    window.addEventListener(WAITLIST_OPEN_EVENT, openFromCta);
+    return () => window.removeEventListener(WAITLIST_OPEN_EVENT, openFromCta);
+  }, []);
 
   useEffect(() => {
     try {

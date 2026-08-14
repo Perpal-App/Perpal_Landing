@@ -13,6 +13,7 @@ type ButtonProps = {
   children: ReactNode;
   href?: string;
   onClick?: () => void;
+  opensWaitlist?: boolean;
   variant?: Variant;
   size?: Size;
   /** `pill` when the button sits inside a rounded container, so the two
@@ -25,6 +26,8 @@ type ButtonProps = {
   disabled?: boolean;
   "aria-label"?: string;
 };
+
+export const WAITLIST_OPEN_EVENT = "perpal:waitlist-open";
 
 /**
  * The only button in the project.
@@ -166,6 +169,7 @@ export function Button({
   children,
   href,
   onClick,
+  opensWaitlist = false,
   variant = "solid",
   size = "md",
   shape = "key",
@@ -194,7 +198,10 @@ export function Button({
   const inner = href ? (
     <a
       href={href}
-      onClick={(event) => href.startsWith("#") && handleAnchorClick(event, href)}
+      onClick={(event) => {
+        if (href.startsWith("#")) handleAnchorClick(event, href);
+        if (opensWaitlist) window.dispatchEvent(new Event(WAITLIST_OPEN_EVENT));
+      }}
       className={classes}
       {...(offSite ? { target: "_blank", rel: "noreferrer" } : {})}
       {...rest}

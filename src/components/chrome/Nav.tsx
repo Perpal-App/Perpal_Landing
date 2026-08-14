@@ -84,7 +84,13 @@ export function Nav() {
         </a>
 
         {/* Pill, so the button's radius agrees with the capsule around it. */}
-        <Button size="sm" shape="pill" magnetic={false}>
+        <Button
+          href="#top"
+          opensWaitlist
+          size="sm"
+          shape="pill"
+          magnetic={false}
+        >
           {cta.label}
         </Button>
       </div>

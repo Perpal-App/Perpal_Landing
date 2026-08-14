@@ -139,6 +139,8 @@ export function Access() {
             platform={access.ios.platform}
           />
           <Button
+            href="#top"
+            opensWaitlist
             variant="ember"
             size="sm"
             className="col-span-2 sm:min-h-12 sm:px-7 sm:text-base"
