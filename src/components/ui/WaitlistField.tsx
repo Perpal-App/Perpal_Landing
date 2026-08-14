@@ -22,19 +22,14 @@ type Confirmation = (typeof waitlist)["success" | "alreadyRegistered"];
  * md button's `px-7`, and holds the check with "You're in" and room to spare. Both
  * fixed states clear a 320px viewport, where `--spacing-gutter` leaves 280px.
  *
- * The open state is fluid first and capped second — `w-full max-w-[26rem]`, not
- * `w-[26rem] max-w-full`. Those look interchangeable and are not. A percentage
- * max-width resolves against the parent, and this control's ancestors are centred
- * flex items, which are shrink-to-fit: their width is decided by their contents. So
- * `max-w-full` was asking the capsule to clamp itself against a box the capsule
- * itself was sizing, which resolves to no clamp at all and put 416px of field
- * across a 360px screen. Stating the fluid width first and the ceiling second
- * removes the circularity — `width: 100%` fills whatever column it is given, and
- * 26rem is a maximum rather than a starting point.
+ * The open state fills a stable parent capped at 26rem below. Keeping the cap on
+ * the parent is what makes the transition honest on desktop: if `width: 100%`
+ * targets the full hero while `max-width: 26rem` lands on the moving capsule,
+ * the cap is reached in the first few frames and the expansion looks instant.
  */
 const WIDTH: Record<Stage, string> = {
   closed: "w-44",
-  open: "w-full max-w-[26rem]",
+  open: "w-full",
   /* Wider than the trigger, because the mascot rides inside the capsule now:
      16px check + 8 + roughly 78px of "You're in" + 8 + a 36px mascot is 146px,
      and `px-5` either side takes it to 186px. `w-52` is 208px, which leaves the
@@ -187,10 +182,9 @@ async function readWaitlistCount(signal?: AbortSignal): Promise<number | null> {
  * ── Confetti ─────────────────────────────────────────────────────────────────
  *
  * `Confetti` has no JavaScript and runs its animation on mount, so mounting it is
- * the trigger and it cannot fire twice. Its region is widened past the capsule
- * because its own box clips it — the pieces fall up to 27rem, so a burst confined
- * to a 56px capsule would be a burst nobody sees. `body` carries `overflow-x:
- * clip`, so reaching past the gutters cannot produce a sideways scrollbar.
+ * the trigger and it cannot fire twice. Its region is centred around the capsule
+ * and capped at 20rem, wide enough for the pieces to separate without turning the
+ * whole hero into the celebration surface.
  *
  * Under reduced motion the global block lands the fall on its final frame, which
  * is off-screen and transparent, so the celebration simply does not happen. That
@@ -387,18 +381,16 @@ export function WaitlistField() {
           the winner would be decided by stylesheet order rather than by intent.
           Given its own box to fill, it fills this one.
 
-          The spread is narrow on a phone and wide from `sm` up. Pieces are placed
-          by percentage inside that box, so its width is the burst's width — 128px
-          of overhang either side of a 280px control would throw most of the
-          confetti off the sides of the screen, where `body`'s `overflow-x: clip`
-          would silently eat it. */}
+          Pieces are placed by percentage inside this box, so its capped width is
+          the burst's visible width on desktop while `w-full` keeps it inside the
+          hero gutters on a phone. */}
       {stage === "done" && celebrate && (
-        <div className="pointer-events-none absolute -inset-x-6 top-0 -z-10 h-[26rem] sm:-inset-x-32">
+        <div className="pointer-events-none absolute top-0 left-1/2 -z-10 h-[26rem] w-full max-w-80 -translate-x-1/2">
           <Confetti />
         </div>
       )}
 
-      <div className="flex w-full justify-center">
+      <div className="flex w-full max-w-[26rem] justify-center">
         <div
           className={cn(
             "relative min-h-14 ring-1",

@@ -63,7 +63,7 @@ export function Confetti({ className }: { className?: string }) {
         <span
           key={piece.x}
           className={cn(
-            "absolute top-0 block animate-[confetti-fall_1700ms_var(--ease-quart)_both]",
+            "absolute top-0 block opacity-0 animate-[confetti-fall_1700ms_var(--ease-quart)_forwards]",
             piece.round ? "rounded-full" : "rounded-[2px]",
           )}
           style={{

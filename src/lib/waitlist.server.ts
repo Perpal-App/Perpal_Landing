@@ -26,19 +26,21 @@ type EncryptedEmail = {
   keyVersion: 1;
 };
 
+type RegistrationSource = "landing" | "offpay_migration";
+
 type WaitlistDocument = {
   emailHash: string;
   emailEncrypted: EncryptedEmail;
   registeredAt: Date;
   schemaVersion: 1;
-  source: "landing";
+  source: RegistrationSource;
 };
 
 type ReadableWaitlistDocument = {
   email: string;
   registeredAt: Date;
   schemaVersion: 1;
-  source: "landing";
+  source: RegistrationSource;
   status: "registered";
 };
 
@@ -88,7 +90,10 @@ const registrationValidator: Document = {
       },
       registeredAt: { bsonType: "date" },
       schemaVersion: { bsonType: "int", enum: [1] },
-      source: { bsonType: "string", enum: ["landing"] },
+      source: {
+        bsonType: "string",
+        enum: ["landing", "offpay_migration"],
+      },
     },
   },
 };
@@ -133,7 +138,10 @@ const readableRegistrationValidator: Document = {
       email: { bsonType: "string", minLength: 5, maxLength: 254 },
       registeredAt: { bsonType: "date" },
       schemaVersion: { bsonType: "int", enum: [1] },
-      source: { bsonType: "string", enum: ["landing"] },
+      source: {
+        bsonType: "string",
+        enum: ["landing", "offpay_migration"],
+      },
       status: { bsonType: "string", enum: ["registered"] },
     },
   },
