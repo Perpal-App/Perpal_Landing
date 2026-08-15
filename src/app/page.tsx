@@ -8,10 +8,41 @@ import { Access } from "@/components/sections/Access";
 import { Quote } from "@/components/sections/Quote";
 import { Footer } from "@/components/chrome/Footer";
 import { SectionMotion } from "@/components/motion/SectionMotion";
+import { site } from "@/lib/content";
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${site.url}/#organization`,
+      name: site.name,
+      url: site.url,
+      logo: `${site.url}/brand/perpal-mark.png`,
+      description: site.description,
+      sameAs: [site.repo],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${site.url}/#website`,
+      name: site.name,
+      url: site.url,
+      description: site.description,
+      publisher: { "@id": `${site.url}/#organization` },
+      inLanguage: "en",
+    },
+  ],
+};
 
 export default function Home() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+        }}
+      />
       <Hero />
       <About />
       <Product />

@@ -8,15 +8,15 @@ import { Splash } from "@/components/chrome/Splash";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { OPENING_ACTIVE_CLASS } from "@/components/motion/opening";
 
-/* The share-card title, and only that. The tab takes the bare product name — a tab
-   strip gives a title about fifteen characters before it truncates, so a descriptive
-   one arrives as "Perpal — A non-custodial perp…" and spends its width saying
-   nothing. A social card has room for the sentence, so it keeps it. */
-const socialTitle = "Perpal — A non-custodial perpetuals client for Solana";
+/* Search engines use the title, visible H1 and Open Graph title together to name
+   the result. Keep one descriptive version across those machine-readable surfaces
+   so an unknown brand name still says what the product is. */
+const socialTitle =
+  "Perpal — Gamified perps learning and private trading on Solana";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
-  title: { default: site.name, template: "%s — Perpal" },
+  title: { default: socialTitle, template: "%s — Perpal" },
   description: site.description,
   applicationName: site.name,
   keywords: [
@@ -41,7 +41,17 @@ export const metadata: Metadata = {
     title: socialTitle,
     description: site.description,
   },
-  robots: { index: true, follow: true },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   alternates: { canonical: "/" },
   icons: {
     icon: "/brand/perpal-mark.png",
