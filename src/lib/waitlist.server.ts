@@ -413,8 +413,11 @@ export function normalizeClientIp(headerValue: string | null): string | null {
 }
 
 export async function getWaitlistCount(): Promise<number> {
-  const { registrations } = await collections();
-  return registrations.countDocuments({});
+  const client = await mongoClient();
+  return client
+    .db(requiredEnv("MONGODB_DB"))
+    .collection<WaitlistDocument>("waitlist_registrations")
+    .countDocuments({});
 }
 
 export async function checkWaitlistRequestLimit(

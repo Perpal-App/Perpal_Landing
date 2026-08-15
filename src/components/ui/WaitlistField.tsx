@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { preload } from "react-dom";
 import { cn } from "@/lib/cn";
 import { cta, waitlist } from "@/lib/content";
 import { Button, WAITLIST_OPEN_EVENT } from "@/components/ui/Button";
@@ -93,7 +94,6 @@ function isWaitlistCount(value: unknown): value is number {
 
 async function readWaitlistCount(signal?: AbortSignal): Promise<number | null> {
   const response = await fetch("/api/waitlist", {
-    cache: "no-store",
     signal,
   });
   const result: unknown = await response.json();
@@ -192,6 +192,8 @@ async function readWaitlistCount(signal?: AbortSignal): Promise<number | null> {
  * is the right behaviour for something that is only a celebration.
  */
 export function WaitlistField() {
+  preload("/api/waitlist", { as: "fetch", crossOrigin: "anonymous" });
+
   const [stage, setStage] = useState<Stage>("closed");
   const [celebrate, setCelebrate] = useState(false);
   const [confirmation, setConfirmation] =
